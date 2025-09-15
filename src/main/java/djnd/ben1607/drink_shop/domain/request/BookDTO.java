@@ -1,0 +1,31 @@
+package djnd.ben1607.drink_shop.domain.request;
+
+import java.time.LocalDate;
+import java.util.List;
+
+import org.springframework.web.multipart.MultipartFile;
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+public class BookDTO {
+    private Long id;
+    private String title;
+    private String author;
+    private String publisher;
+    private LocalDate publicationDate;
+    private String isbn;
+    private String description;
+    private String language;
+    private Integer numberOfPages;
+    private Double price;
+    private MultipartFile coverImage;
+    private Integer stockQuantity;
+    private List<Long> categories;
+}
