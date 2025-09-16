@@ -116,15 +116,15 @@ public class UserService {
         List<String> errorList = new ArrayList<>();
         Set<String> userSet = new HashSet<>();
         for (CreateAccountDTO x : users) {
+            String errorMessage = "";
             if (!userSet.add(x.getEmail())) {
-                throw new EillegalStateException("Duplicate email found in the input list: " + x.getEmail());
+                errorMessage = "Duplicate email found in the input list: " + x.getEmail();
+                errorList.add(errorMessage);
+            } else if (this.userRepository.existsByEmail(x.getEmail())) {
+                errorMessage = "Email (" + x.getEmail() + ") already exist";
+                errorList.add(errorMessage);
             }
-        }
-        for (CreateAccountDTO x : users) {
-            if (this.userRepository.existsByEmail(x.getEmail())) {
-                errorList.add("Email (" + x.getEmail() + ") already exist");
-            }
-            if (errorList.isEmpty()) {
+            if (errorMessage.isEmpty()) {
                 User user = new User();
                 user.setEmail(x.getEmail());
                 user.setActive(true);
@@ -142,7 +142,6 @@ public class UserService {
             return lastUsers.stream().map(ConvertModuleUser::createdTran).collect(Collectors.toList());
         }
         throw new EillegalStateException(errorList.stream().collect(Collectors.joining("\n")));
-
     }
 
     public ResUpdateUser updateUser(User user) {
