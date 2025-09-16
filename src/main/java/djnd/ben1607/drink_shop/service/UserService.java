@@ -118,10 +118,10 @@ public class UserService {
         for (CreateAccountDTO x : users) {
             String errorMessage = "";
             if (!userSet.add(x.getEmail())) {
-                errorMessage = "Duplicate email found in the input list: " + x.getEmail();
+                errorMessage = "[Duplicate email found in the input list: " + x.getEmail() + "]";
                 errorList.add(errorMessage);
             } else if (this.userRepository.existsByEmail(x.getEmail())) {
-                errorMessage = "Email (" + x.getEmail() + ") already exist";
+                errorMessage = "[Email (" + x.getEmail() + ") already exist]";
                 errorList.add(errorMessage);
             }
             if (errorMessage.isEmpty()) {
@@ -141,7 +141,7 @@ public class UserService {
             this.userRepository.saveAll(lastUsers);
             return lastUsers.stream().map(ConvertModuleUser::createdTran).collect(Collectors.toList());
         }
-        throw new EillegalStateException(errorList.stream().collect(Collectors.joining("\n")));
+        throw new EillegalStateException(errorList.stream().collect(Collectors.joining("-", "", "")));
     }
 
     public ResUpdateUser updateUser(User user) {

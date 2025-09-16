@@ -42,25 +42,21 @@ public class UserController {
         this.passwordEncoder = passwordEncoder;
     }
 
-    // @PostMapping("/users")
-    // @ApiMessage("Create new user")
-    // public ResponseEntity<ResCreateUser> createNewUser(@Valid @RequestBody
-    // CreateAccountDTO user)
-    // throws IdInvalidException {
-    // if (this.userService.existsByEmail(user.getEmail())) {
-    // throw new IdInvalidException(">>> Email already exists!, please enter another
-    // email <<<");
-    // }
-    // if (user.getConfirmPassword().equals(user.getPassword())) {
-    // String hashPassword = this.passwordEncoder.encode(user.getPassword());
-    // user.setPassword(hashPassword);
-    // return
-    // ResponseEntity.status(HttpStatus.CREATED).body(this.userService.createNewUser(user));
-    // }
-    // throw new IdInvalidException(">>> Password and confirm password is not the
-    // same! <<<");
+    @PostMapping("/users")
+    @ApiMessage("Create new user")
+    public ResponseEntity<ResCreateUser> createNewUser(@Valid @RequestBody CreateAccountDTO user)
+            throws IdInvalidException {
+        if (this.userService.existsByEmail(user.getEmail())) {
+            throw new IdInvalidException(">>> Email already exists!, please enter another email <<<");
+        }
+        if (user.getConfirmPassword().equals(user.getPassword())) {
+            String hashPassword = this.passwordEncoder.encode(user.getPassword());
+            user.setPassword(hashPassword);
+            return ResponseEntity.status(HttpStatus.CREATED).body(this.userService.createNewUser(user));
+        }
+        throw new IdInvalidException(">>> Password and confirm password is not the same! <<<");
 
-    // }
+    }
 
     @PutMapping("/users")
     @ApiMessage("Update user")
@@ -104,7 +100,7 @@ public class UserController {
         return ResponseEntity.ok(this.userService.fetchAll());
     }
 
-    @PostMapping("users")
+    @PostMapping("users/b-create")
     @ApiMessage("Create new user")
     public ResponseEntity<List<ResCreateUser>> createUsers(@RequestBody List<CreateAccountDTO> listUsers)
             throws EillegalStateException {
