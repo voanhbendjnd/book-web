@@ -22,7 +22,7 @@ public class ResBook {
     private Double price;
     private Integer stockQuantity;
     private String coverImage;
-    private List<String> categories;
+    private String categories;
     private Instant createdAt, updatedAt;
     private String createdBy, updatedBy;
     private Double totalReviews;

@@ -3,6 +3,7 @@ package djnd.ben1607.drink_shop.utils.convert;
 import java.util.stream.Collectors;
 
 import djnd.ben1607.drink_shop.domain.entity.Book;
+import djnd.ben1607.drink_shop.domain.entity.Category;
 import djnd.ben1607.drink_shop.domain.entity.Review;
 import djnd.ben1607.drink_shop.domain.response.book.ResBook;
 import djnd.ben1607.drink_shop.domain.response.book.ResCreateBook;
@@ -72,9 +73,13 @@ public class ConvertModuleBook {
         res.setUpdatedBy(book.getUpdatedBy());
         res.setCreatedAt(book.getCreatedAt());
         res.setCreatedBy(book.getCreatedBy());
-        if (book.getCategories() != null && !book.getCategories().isEmpty()) {
-            res.setCategories(book.getCategories().stream().map(x -> x.getName()).collect(Collectors.toList()));
-        }
+        res.setCategories(book.getCategories() != null
+                ? book.getCategories().stream().map(Category::getName).collect(Collectors.joining(", "))
+                : "");
+        // if (book.getCategories() != null && !book.getCategories().isEmpty()) {
+        // res.setCategories(book.getCategories().stream().map(x ->
+        // x.getName()).collect(Collectors.toList()));
+        // }
         res.setTotalReviews((double) book.getReviews().stream().map(Review::getId).count());
         Double ratingAverageAllReview = book.getReviews().stream()
                 .mapToDouble(Review::getRating)

@@ -128,7 +128,7 @@ public class BookService {
     }
 
     public ResultPaginationDTO fetchAllWithSpecAndFilter(Specification<Book> spec, Pageable pageable) {
-        Page<Book> page = this.bookRepository.findAll(pageable);
+        Page<Book> page = this.bookRepository.findAll(spec, pageable);
         ResultPaginationDTO res = new ResultPaginationDTO();
         ResultPaginationDTO.Meta mt = new ResultPaginationDTO.Meta();
         mt.setPage(pageable.getPageNumber() + 1);
