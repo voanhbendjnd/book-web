@@ -29,5 +29,6 @@ public class ResCreateBook {
     private List<String> categories;
     private Instant createdAt;
     private String createdBy;
+    private List<String> imgs;
 
 }

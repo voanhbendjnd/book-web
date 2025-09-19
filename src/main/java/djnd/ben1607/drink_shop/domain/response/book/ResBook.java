@@ -27,4 +27,5 @@ public class ResBook {
     private String createdBy, updatedBy;
     private Double totalReviews;
     private Double ratingAverage;
+    private List<String> imgs;
 }

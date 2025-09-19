@@ -9,11 +9,9 @@ import com.turkraft.springfilter.boot.Filter;
 
 import djnd.ben1607.drink_shop.domain.entity.Book;
 import djnd.ben1607.drink_shop.domain.request.BookDTO;
-import djnd.ben1607.drink_shop.domain.request.FileUploadRequest;
 import djnd.ben1607.drink_shop.domain.response.ResultPaginationDTO;
 import djnd.ben1607.drink_shop.domain.response.book.ResBook;
 import djnd.ben1607.drink_shop.domain.response.book.ResCreateBook;
-import djnd.ben1607.drink_shop.domain.response.book.ResUpdateBook;
 import djnd.ben1607.drink_shop.service.BookService;
 import djnd.ben1607.drink_shop.utils.annotation.ApiMessage;
 import djnd.ben1607.drink_shop.utils.error.IdInvalidException;
@@ -44,19 +42,19 @@ public class BookController {
         this.bookService = bookService;
     }
 
-    @PostMapping("/books2")
+    @PostMapping("/books")
     @ApiMessage("Create new book")
-    public ResponseEntity<ResCreateBook> create(@RequestPart("coverImage") MultipartFile coverImage,
+    public ResponseEntity<?> create(@RequestPart("imgs") List<MultipartFile> imgs,
             @ModelAttribute BookDTO dto)
             throws IdInvalidException, URISyntaxException, IOException {
-        if (coverImage != null) {
-            return ResponseEntity.status(HttpStatus.CREATED).body(this.bookService.create(dto, coverImage));
+        if (imgs != null) {
+            return ResponseEntity.status(HttpStatus.CREATED).body(this.bookService.createMultipart(dto, imgs));
 
         }
-        throw new IOException("File invalid!");
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("File invalid");
     }
 
-    @PostMapping("/books")
+    @PostMapping("/books2")
     @ApiMessage("Create new book basic")
     public ResponseEntity<ResCreateBook> createBasic(@RequestBody BookDTO dto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(this.bookService.createBasic(dto));
@@ -64,22 +62,24 @@ public class BookController {
 
     @PutMapping("/books")
     @ApiMessage("Update book by ID")
-    public ResponseEntity<ResUpdateBook> update(@ModelAttribute BookDTO dto)
+    public ResponseEntity<?> update(@RequestPart("imgs") List<MultipartFile> imgs, @ModelAttribute BookDTO dto)
             throws IdInvalidException, URISyntaxException, IOException {
 
         if (!this.bookService.existsById(dto.getId())) {
             throw new IdInvalidException(">>> Id book (" + dto.getId() + ") is not exists! <<<");
         }
-        if (dto.getCoverImage() != null) {
+
+        if (imgs != null && !imgs.isEmpty()) {
             List<String> notFile = Arrays.asList("jpg", "jpeg", "png");
-            boolean checkFile = notFile.stream()
-                    .anyMatch(x -> dto.getCoverImage().getOriginalFilename().toLowerCase().endsWith(x));
-            if (!checkFile) {
-                throw new IOException("File invalid");
+            for (MultipartFile x : imgs) {
+                boolean check = notFile.stream().anyMatch(it -> x.getOriginalFilename().toLowerCase().endsWith(it));
+                if (!check) {
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("File invalid");
+                }
             }
         }
 
-        return ResponseEntity.ok(this.bookService.update(dto));
+        return ResponseEntity.ok(this.bookService.updateMutilpart(dto, imgs));
     }
 
     @GetMapping("/books/{id}")

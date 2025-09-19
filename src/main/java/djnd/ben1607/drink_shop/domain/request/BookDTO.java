@@ -3,8 +3,6 @@ package djnd.ben1607.drink_shop.domain.request;
 import java.time.LocalDate;
 import java.util.List;
 
-import org.springframework.web.multipart.MultipartFile;
-
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -25,7 +23,6 @@ public class BookDTO {
     private String language;
     private Integer numberOfPages;
     private Double price;
-    private MultipartFile coverImage;
     private Integer stockQuantity;
     private List<Long> categories;
 }

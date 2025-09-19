@@ -1,6 +1,5 @@
 package djnd.ben1607.drink_shop.domain.request;
 
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;

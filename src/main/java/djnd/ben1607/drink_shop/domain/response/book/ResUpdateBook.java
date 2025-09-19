@@ -29,4 +29,5 @@ public class ResUpdateBook {
     private List<String> categories;
     private Instant updatedAt;
     private String updatedBy;
+    private List<String> imgs;
 }

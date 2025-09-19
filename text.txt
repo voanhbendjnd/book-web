@@ -5,3 +5,6 @@
             permissionList.add(new Permission("Fetch all category", "/api/v1/categories", "GET", "CATEGORIES"));
 
 cache dùng để lấy dữ liệu mà nó  ít thay đổi rất phù hợp với dữ liệu mà người dùng lấy liên tục mà ít thay đổi chủ yếu là đôi ba ngày mới đổi một lần
+
+// file 
+FE gửi data trong đó có file ảnh sẽ nằm trong FormData, lúc nhận ở BE thì nhận là requestPart or Param để nhận ảnh, còn ModalAttribute để nhận data update

@@ -1,8 +1,10 @@
 package djnd.ben1607.drink_shop.utils.convert;
 
+import java.util.ArrayList;
 import java.util.stream.Collectors;
 
 import djnd.ben1607.drink_shop.domain.entity.Book;
+import djnd.ben1607.drink_shop.domain.entity.BookImage;
 import djnd.ben1607.drink_shop.domain.entity.Category;
 import djnd.ben1607.drink_shop.domain.entity.Review;
 import djnd.ben1607.drink_shop.domain.response.book.ResBook;
@@ -26,6 +28,9 @@ public class ConvertModuleBook {
         res.setPublisher(book.getPublisher());
         res.setCreatedAt(book.getCreatedAt());
         res.setCreatedBy(book.getCreatedBy());
+        res.setImgs((book.getBookImages() != null)
+                ? book.getBookImages().stream().map(BookImage::getImgUrl).collect(Collectors.toList())
+                : new ArrayList<>());
         if (book.getCategories() != null && !book.getCategories().isEmpty()) {
             res.setCategories(book.getCategories().stream().map(x -> x.getName()).collect(Collectors.toList()));
         }
@@ -35,7 +40,6 @@ public class ConvertModuleBook {
     public static ResUpdateBook update(Book book) {
         ResUpdateBook res = new ResUpdateBook();
         res.setId(book.getId());
-
         res.setAuthor(book.getAuthor());
         res.setCoverImage(book.getCoverImage());
         res.setDescription(book.getDescription());
@@ -49,6 +53,9 @@ public class ConvertModuleBook {
         res.setPublisher(book.getPublisher());
         res.setUpdatedAt(book.getUpdatedAt());
         res.setUpdatedBy(book.getUpdatedBy());
+        res.setImgs((book.getBookImages() != null)
+                ? book.getBookImages().stream().map(BookImage::getImgUrl).collect(Collectors.toList())
+                : new ArrayList<>());
         if (book.getCategories() != null && !book.getCategories().isEmpty()) {
             res.setCategories(book.getCategories().stream().map(x -> x.getName()).collect(Collectors.toList()));
         }
@@ -76,6 +83,9 @@ public class ConvertModuleBook {
         res.setCategories(book.getCategories() != null
                 ? book.getCategories().stream().map(Category::getName).collect(Collectors.joining(", "))
                 : "");
+        res.setImgs((book.getBookImages() != null)
+                ? book.getBookImages().stream().map(BookImage::getImgUrl).collect(Collectors.toList())
+                : new ArrayList<>());
         // if (book.getCategories() != null && !book.getCategories().isEmpty()) {
         // res.setCategories(book.getCategories().stream().map(x ->
         // x.getName()).collect(Collectors.toList()));
