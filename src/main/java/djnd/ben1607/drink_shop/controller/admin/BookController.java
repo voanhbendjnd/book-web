@@ -45,10 +45,11 @@ public class BookController {
     @PostMapping("/books")
     @ApiMessage("Create new book")
     public ResponseEntity<?> create(@RequestPart("imgs") List<MultipartFile> imgs,
+            @RequestPart("coverImage") MultipartFile img,
             @ModelAttribute BookDTO dto)
             throws IdInvalidException, URISyntaxException, IOException {
         if (imgs != null) {
-            return ResponseEntity.status(HttpStatus.CREATED).body(this.bookService.createMultipart(dto, imgs));
+            return ResponseEntity.status(HttpStatus.CREATED).body(this.bookService.createMultipart(dto, imgs, img));
 
         }
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("File invalid");
@@ -62,7 +63,8 @@ public class BookController {
 
     @PutMapping("/books")
     @ApiMessage("Update book by ID")
-    public ResponseEntity<?> update(@RequestPart("imgs") List<MultipartFile> imgs, @ModelAttribute BookDTO dto)
+    public ResponseEntity<?> update(@RequestPart("imgs") List<MultipartFile> imgs, @ModelAttribute BookDTO dto,
+            @RequestPart("coverImge") MultipartFile img)
             throws IdInvalidException, URISyntaxException, IOException {
 
         if (!this.bookService.existsById(dto.getId())) {
@@ -79,7 +81,7 @@ public class BookController {
             }
         }
 
-        return ResponseEntity.ok(this.bookService.updateMutilpart(dto, imgs));
+        return ResponseEntity.ok(this.bookService.updateMutilpart(dto, imgs, img));
     }
 
     @GetMapping("/books/{id}")

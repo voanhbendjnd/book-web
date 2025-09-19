@@ -2,8 +2,6 @@ package djnd.ben1607.drink_shop.controller.admin;
 
 import java.util.List;
 
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -15,11 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.turkraft.springfilter.boot.Filter;
-
-import djnd.ben1607.drink_shop.domain.entity.Category;
 import djnd.ben1607.drink_shop.domain.request.CategoryDTO;
-import djnd.ben1607.drink_shop.domain.response.ResultPaginationDTO;
 import djnd.ben1607.drink_shop.domain.response.category.ResCategory;
 import djnd.ben1607.drink_shop.domain.response.category.ResCreateCategory;
 import djnd.ben1607.drink_shop.domain.response.category.ResUpdateCategory;

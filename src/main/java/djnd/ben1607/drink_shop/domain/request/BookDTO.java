@@ -24,5 +24,5 @@ public class BookDTO {
     private Integer numberOfPages;
     private Double price;
     private Integer stockQuantity;
-    private List<Long> categories;
+    private List<String> categories;
 }

@@ -21,22 +21,24 @@ import djnd.ben1607.drink_shop.domain.response.book.ResBook;
 import djnd.ben1607.drink_shop.domain.response.book.ResCreateBook;
 import djnd.ben1607.drink_shop.domain.response.book.ResUpdateBook;
 import djnd.ben1607.drink_shop.repository.BookRepository;
+import djnd.ben1607.drink_shop.repository.CategoryRepository;
 import djnd.ben1607.drink_shop.utils.ChangeUpdate;
 import djnd.ben1607.drink_shop.utils.convert.ConvertModuleBook;
 
 @Service
 public class BookService {
     private final BookRepository bookRepository;
-    private final CategoryService categoryService;
     private final FileService fileService;
+    private final CategoryRepository categRepository;
 
     public BookService(
             BookRepository bookRepository,
             CategoryService categoryService,
-            FileService fileService) {
+            FileService fileService,
+            CategoryRepository categoryRepository) {
         this.bookRepository = bookRepository;
-        this.categoryService = categoryService;
         this.fileService = fileService;
+        this.categRepository = categoryRepository;
     }
 
     public boolean existsById(Long id) {
@@ -46,7 +48,7 @@ public class BookService {
     public ResCreateBook createBasic(BookDTO dto) {
         Book book = new Book();
         if (dto.getCategories() != null && !dto.getCategories().isEmpty()) {
-            List<Category> categories = this.categoryService.findByIdIn(dto.getCategories());
+            List<Category> categories = this.categRepository.findByNameIn(dto.getCategories());
             if (categories != null && !categories.isEmpty()) {
                 book.setCategories(categories);
             }
@@ -64,14 +66,17 @@ public class BookService {
         return ConvertModuleBook.create(this.bookRepository.save(book));
     }
 
-    public ResCreateBook createMultipart(BookDTO dto, List<MultipartFile> files)
+    public ResCreateBook createMultipart(BookDTO dto, List<MultipartFile> files, MultipartFile file)
             throws URISyntaxException, IOException {
         Book book = new Book();
         if (dto.getCategories() != null && !dto.getCategories().isEmpty()) {
-            List<Category> categories = this.categoryService.findByIdIn(dto.getCategories());
+            List<Category> categories = this.categRepository.findByNameIn(dto.getCategories());
             if (categories != null && !categories.isEmpty()) {
                 book.setCategories(categories);
             }
+        }
+        if (file != null && !file.isEmpty()) {
+            book.setCoverImage(this.fileService.storeProductCreate(file));
         }
         if (files != null && !files.isEmpty()) {
             var imgs = new ArrayList<BookImage>();
@@ -96,10 +101,13 @@ public class BookService {
         return ConvertModuleBook.create(this.bookRepository.save(book));
     }
 
-    public ResUpdateBook updateMutilpart(BookDTO dto, List<MultipartFile> files)
+    public ResUpdateBook updateMutilpart(BookDTO dto, List<MultipartFile> files, MultipartFile file)
             throws URISyntaxException, IOException {
         Book bookDB = this.bookRepository.findById(dto.getId()).get();
         if (bookDB != null) {
+            if (file != null && !file.isEmpty()) {
+                bookDB.setCoverImage(this.fileService.storeProductCreate(file));
+            }
             if (files != null && !files.isEmpty()) {
                 bookDB.setBookImages(files.stream().map(x -> {
                     var img = new BookImage();
@@ -123,7 +131,7 @@ public class BookService {
             bookDB.setPublisher(dto.getPublisher());
             bookDB.setStockQuantity(dto.getStockQuantity());
             if (dto.getCategories() != null) {
-                List<Category> categories = this.categoryService.findByIdIn(dto.getCategories());
+                List<Category> categories = this.categRepository.findByNameIn(dto.getCategories());
                 if (categories != null && !categories.isEmpty()) {
                     bookDB.setCategories(categories);
                 }
@@ -138,7 +146,7 @@ public class BookService {
     public ResCreateBook create(BookDTO dto, MultipartFile file) throws URISyntaxException, IOException {
         Book book = new Book();
         if (dto.getCategories() != null && !dto.getCategories().isEmpty()) {
-            List<Category> categories = this.categoryService.findByIdIn(dto.getCategories());
+            List<Category> categories = this.categRepository.findByNameIn(dto.getCategories());
             if (categories != null && !categories.isEmpty()) {
                 book.setCategories(categories);
             }
@@ -163,9 +171,6 @@ public class BookService {
         Book bookDB = this.bookRepository.findById(dto.getId()).get();
         Book book = new Book();
         if (bookDB != null) {
-            if (dto.getCoverImage() != null) {
-                // book.setCoverImage(this.fileService.storeProductCreate(dto.getCoverImage()));
-            }
             book.setAuthor(dto.getAuthor());
             book.setTitle(dto.getTitle());
             book.setDescription(dto.getDescription());
@@ -177,7 +182,7 @@ public class BookService {
             book.setPublisher(dto.getPublisher());
             book.setStockQuantity(dto.getStockQuantity());
             if (dto.getCategories() != null) {
-                List<Category> categories = this.categoryService.findByIdIn(dto.getCategories());
+                List<Category> categories = this.categRepository.findByNameIn(dto.getCategories());
                 if (categories != null && !categories.isEmpty()) {
                     book.setCategories(categories);
                 }

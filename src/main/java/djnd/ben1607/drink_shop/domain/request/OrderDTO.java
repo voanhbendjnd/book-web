@@ -1,6 +1,5 @@
 package djnd.ben1607.drink_shop.domain.request;
 
-import djnd.ben1607.drink_shop.utils.constant.OrderStatusEnum;
 import djnd.ben1607.drink_shop.utils.constant.PaymentMethodEnum;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;

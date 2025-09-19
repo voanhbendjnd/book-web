@@ -13,4 +13,6 @@ public interface CategoryRepository extends JpaRepository<Category, Long>, JpaSp
     public List<Category> findByIdIn(List<Long> ids);
 
     public boolean existsByName(String name);
+
+    public List<Category> findByNameIn(List<String> names);
 }
