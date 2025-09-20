@@ -1,7 +1,6 @@
 package djnd.ben1607.drink_shop.domain.response.book;
 
 import java.time.Instant;
-import java.time.LocalDate;
 import java.util.List;
 
 import lombok.Getter;
@@ -14,7 +13,7 @@ public class ResBook {
     private String title;
     private String author;
     private String publisher;
-    private LocalDate publicationDate;
+    private Instant publicationDate;
     private String isbn;
     private String description;
     private String language;
@@ -22,7 +21,7 @@ public class ResBook {
     private Double price;
     private Integer stockQuantity;
     private String coverImage;
-    private String categories;
+    private List<String> categories;
     private Instant createdAt, updatedAt;
     private String createdBy, updatedBy;
     private Double totalReviews;

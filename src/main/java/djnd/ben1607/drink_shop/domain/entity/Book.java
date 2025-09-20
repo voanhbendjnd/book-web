@@ -1,7 +1,6 @@
 package djnd.ben1607.drink_shop.domain.entity;
 
 import java.time.Instant;
-import java.time.LocalDate;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -40,7 +39,7 @@ public class Book {
     private String title;
     private String author;
     private String publisher;
-    private LocalDate publicationDate;
+    private Instant publicationDate;
     private String isbn;
     @Column(columnDefinition = "MEDIUMTEXT")
     private String description;

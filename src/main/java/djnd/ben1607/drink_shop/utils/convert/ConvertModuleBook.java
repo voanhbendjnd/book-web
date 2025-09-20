@@ -31,9 +31,10 @@ public class ConvertModuleBook {
         res.setImgs((book.getBookImages() != null)
                 ? book.getBookImages().stream().map(BookImage::getImgUrl).collect(Collectors.toList())
                 : new ArrayList<>());
-        if (book.getCategories() != null && !book.getCategories().isEmpty()) {
-            res.setCategories(book.getCategories().stream().map(x -> x.getName()).collect(Collectors.toList()));
-        }
+        res.setCategories(book.getCategories() != null
+                ? book.getCategories().stream().map(Category::getName).collect(Collectors.toList())
+                : new ArrayList<>());
+
         return res;
     }
 
@@ -56,9 +57,10 @@ public class ConvertModuleBook {
         res.setImgs((book.getBookImages() != null)
                 ? book.getBookImages().stream().map(BookImage::getImgUrl).collect(Collectors.toList())
                 : new ArrayList<>());
-        if (book.getCategories() != null && !book.getCategories().isEmpty()) {
-            res.setCategories(book.getCategories().stream().map(x -> x.getName()).collect(Collectors.toList()));
-        }
+        res.setCategories(book.getCategories() != null
+                ? book.getCategories().stream().map(Category::getName).collect(Collectors.toList())
+                : new ArrayList<>());
+
         return res;
     }
 
@@ -81,8 +83,8 @@ public class ConvertModuleBook {
         res.setCreatedAt(book.getCreatedAt());
         res.setCreatedBy(book.getCreatedBy());
         res.setCategories(book.getCategories() != null
-                ? book.getCategories().stream().map(Category::getName).collect(Collectors.joining(", "))
-                : "");
+                ? book.getCategories().stream().map(Category::getName).collect(Collectors.toList())
+                : new ArrayList<>());
         res.setImgs((book.getBookImages() != null)
                 ? book.getBookImages().stream().map(BookImage::getImgUrl).collect(Collectors.toList())
                 : new ArrayList<>());
