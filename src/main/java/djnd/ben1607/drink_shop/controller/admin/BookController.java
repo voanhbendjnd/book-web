@@ -48,7 +48,7 @@ public class BookController {
             @RequestPart("coverImage") MultipartFile img,
             @ModelAttribute BookDTO dto)
             throws IdInvalidException, URISyntaxException, IOException {
-        if (imgs != null) {
+        if (imgs != null && img != null && imgs.size() > 0) {
             return ResponseEntity.status(HttpStatus.CREATED).body(this.bookService.createMultipart(dto, imgs, img));
 
         }
@@ -61,10 +61,10 @@ public class BookController {
         return ResponseEntity.status(HttpStatus.CREATED).body(this.bookService.createBasic(dto));
     }
 
-    @PutMapping("/books")
+    @PutMapping("/books/old")
     @ApiMessage("Update book by ID")
     public ResponseEntity<?> update(@RequestPart("imgs") List<MultipartFile> imgs, @ModelAttribute BookDTO dto,
-            @RequestPart("coverImge") MultipartFile img)
+            @RequestPart("coverImage") MultipartFile img)
             throws IdInvalidException, URISyntaxException, IOException {
 
         if (!this.bookService.existsById(dto.getId())) {
@@ -82,6 +82,17 @@ public class BookController {
         }
 
         return ResponseEntity.ok(this.bookService.updateMutilpart(dto, imgs, img));
+    }
+
+    @PutMapping("/books")
+    @ApiMessage("Update book by ID")
+    public ResponseEntity<?> updateDua(@RequestBody BookDTO dto)
+            throws IdInvalidException, URISyntaxException, IOException {
+
+        if (!this.bookService.existsById(dto.getId())) {
+            throw new IdInvalidException(">>> Id book (" + dto.getId() + ") is not exists! <<<");
+        }
+        return ResponseEntity.ok(this.bookService.update(dto));
     }
 
     @GetMapping("/books/{id}")

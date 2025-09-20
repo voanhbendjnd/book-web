@@ -88,6 +88,7 @@ public class BookService {
             }
             book.setBookImages(imgs);
         }
+        book.setActive(true);
         book.setAuthor(dto.getAuthor());
         book.setTitle(dto.getTitle());
         book.setDescription(dto.getDescription());
@@ -103,6 +104,11 @@ public class BookService {
 
     public ResUpdateBook updateMutilpart(BookDTO dto, List<MultipartFile> files, MultipartFile file)
             throws URISyntaxException, IOException {
+        var listBook = this.bookRepository.findAll();
+        for (var x : listBook) {
+            x.setActive(true);
+        }
+        this.bookRepository.saveAll(listBook);
         Book bookDB = this.bookRepository.findById(dto.getId()).get();
         if (bookDB != null) {
             if (file != null && !file.isEmpty()) {
@@ -169,26 +175,24 @@ public class BookService {
 
     public ResUpdateBook update(BookDTO dto) throws URISyntaxException, IOException {
         Book bookDB = this.bookRepository.findById(dto.getId()).get();
-        Book book = new Book();
         if (bookDB != null) {
-            book.setAuthor(dto.getAuthor());
-            book.setTitle(dto.getTitle());
-            book.setDescription(dto.getDescription());
-            book.setIsbn(dto.getIsbn());
-            book.setLanguage(dto.getLanguage());
-            book.setNumberOfPages(dto.getNumberOfPages());
-            book.setPrice(dto.getPrice());
-            book.setPublicationDate(dto.getPublicationDate());
-            book.setPublisher(dto.getPublisher());
-            book.setStockQuantity(dto.getStockQuantity());
+            bookDB.setAuthor(dto.getAuthor());
+            bookDB.setTitle(dto.getTitle());
+            bookDB.setDescription(dto.getDescription());
+            bookDB.setIsbn(dto.getIsbn());
+            bookDB.setLanguage(dto.getLanguage());
+            bookDB.setNumberOfPages(dto.getNumberOfPages());
+            bookDB.setPrice(dto.getPrice());
+            bookDB.setPublicationDate(dto.getPublicationDate());
+            bookDB.setPublisher(dto.getPublisher());
+            bookDB.setStockQuantity(dto.getStockQuantity());
             if (dto.getCategories() != null) {
                 List<Category> categories = this.categRepository.findByNameIn(dto.getCategories());
                 if (categories != null && !categories.isEmpty()) {
-                    book.setCategories(categories);
+                    bookDB.setCategories(categories);
                 }
             }
 
-            ChangeUpdate.handle(book, bookDB);
             Book lastBook = this.bookRepository.save(bookDB);
             return ConvertModuleBook.update(lastBook);
 

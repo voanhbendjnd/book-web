@@ -12,6 +12,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.InputStreamResource;
@@ -20,10 +22,12 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import djnd.ben1607.drink_shop.domain.entity.Book;
+import djnd.ben1607.drink_shop.domain.entity.BookImage;
 import djnd.ben1607.drink_shop.domain.entity.User;
 import djnd.ben1607.drink_shop.domain.response.files.UploadFileResponse;
 import djnd.ben1607.drink_shop.repository.BookRepository;
 import djnd.ben1607.drink_shop.repository.UserRepository;
+import djnd.ben1607.drink_shop.utils.error.EillegalStateException;
 
 @Service
 public class FileService {
@@ -137,6 +141,102 @@ public class FileService {
                     StandardCopyOption.REPLACE_EXISTING);
         }
         return finalName;
+    }
+
+    // Method 1: Update cover image only
+    public void updateBookCoverImage(MultipartFile file, Long bookId)
+            throws IOException, EillegalStateException {
+
+        var book = this.bookRepository.findById(bookId)
+                .orElseThrow(() -> new EillegalStateException("Not found book"));
+
+        if (file != null && !file.isEmpty()) {
+            String uploadPath = baseURI + "book";
+            Path directoryPath = Paths.get(uploadPath);
+            Files.createDirectories(directoryPath);
+
+            String originalFilename = file.getOriginalFilename();
+            if (originalFilename == null) {
+                originalFilename = "cover.jpg";
+            }
+
+            String finalName = System.currentTimeMillis() + "-" + StringUtils.cleanPath(originalFilename);
+            Path filePath = directoryPath.resolve(finalName);
+
+            try (InputStream inputStream = file.getInputStream()) {
+                Files.copy(inputStream, filePath, StandardCopyOption.REPLACE_EXISTING);
+            }
+
+            // Xóa ảnh cũ nếu muốn
+            // deleteOldCoverImage(book.getCoverImage());
+
+            book.setCoverImage(finalName);
+            this.bookRepository.save(book);
+        }
+    }
+
+    // Method 2: Update slider images only
+    public void updateBookSliderImages(List<MultipartFile> imgs, Long bookId)
+            throws IOException, EillegalStateException {
+
+        var book = this.bookRepository.findById(bookId)
+                .orElseThrow(() -> new EillegalStateException("Not found book"));
+
+        if (imgs != null && !imgs.isEmpty()) {
+            String uploadPath = baseURI + "book";
+            Path directoryPath = Paths.get(uploadPath);
+            Files.createDirectories(directoryPath);
+
+            // Xóa ảnh cũ nếu muốn
+            // deleteOldSliderImages(book.getBookImages());
+
+            var bookImages = new ArrayList<BookImage>();
+
+            for (var img : imgs) {
+                if (img != null && !img.isEmpty()) {
+                    String originalName = img.getOriginalFilename();
+                    if (originalName == null) {
+                        originalName = "image.jpg";
+                    }
+
+                    String finalName = System.currentTimeMillis() + "-" + StringUtils.cleanPath(originalName);
+                    Path imgPath = directoryPath.resolve(finalName);
+
+                    try (InputStream inputStream = img.getInputStream()) {
+                        Files.copy(inputStream, imgPath, StandardCopyOption.REPLACE_EXISTING);
+                    }
+
+                    var bookImage = new BookImage();
+                    bookImage.setImgUrl(finalName);
+                    bookImage.setBook(book);
+                    bookImages.add(bookImage);
+
+                    // Đảm bảo timestamp khác nhau
+                    try {
+                        Thread.sleep(1);
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                    }
+                }
+            }
+
+            book.getBookImages().clear(); // Xóa ảnh cũ
+            book.setBookImages(bookImages);
+            this.bookRepository.save(book);
+        }
+    }
+
+    // Method 3: Update both (combination of above)
+    public void updateBookImages(MultipartFile coverImage, List<MultipartFile> sliderImages, Long bookId)
+            throws IOException, EillegalStateException {
+
+        if (coverImage != null && !coverImage.isEmpty()) {
+            updateBookCoverImage(coverImage, bookId);
+        }
+
+        if (sliderImages != null && !sliderImages.isEmpty()) {
+            updateBookSliderImages(sliderImages, bookId);
+        }
     }
 
     public long getFileLength(String fileName, String folder) throws URISyntaxException {

@@ -49,7 +49,8 @@ public class Book {
     private Integer stockQuantity;
     private String coverImage;
     private Integer sold;
-    @OneToMany(mappedBy = "book", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private boolean active;
+    @OneToMany(mappedBy = "book", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private List<BookImage> bookImages;
     @OneToMany(mappedBy = "book", fetch = FetchType.LAZY)
     @JsonIgnore
