@@ -28,6 +28,7 @@ import djnd.ben1607.drink_shop.domain.response.files.UploadFileResponse;
 import djnd.ben1607.drink_shop.repository.BookRepository;
 import djnd.ben1607.drink_shop.repository.UserRepository;
 import djnd.ben1607.drink_shop.utils.error.EillegalStateException;
+import jakarta.transaction.Transactional;
 
 @Service
 public class FileService {
@@ -176,6 +177,7 @@ public class FileService {
     }
 
     // Method 2: Update slider images only
+    @Transactional
     public void updateBookSliderImages(List<MultipartFile> imgs, Long bookId)
             throws IOException, EillegalStateException {
 
@@ -187,11 +189,10 @@ public class FileService {
             Path directoryPath = Paths.get(uploadPath);
             Files.createDirectories(directoryPath);
 
-            // Xóa ảnh cũ nếu muốn
-            // deleteOldSliderImages(book.getBookImages());
+            // ✅ ĐÚNG: Clear collection hiện tại
+            book.getBookImages().clear();
 
-            var bookImages = new ArrayList<BookImage>();
-
+            // Upload và thêm images mới
             for (var img : imgs) {
                 if (img != null && !img.isEmpty()) {
                     String originalName = img.getOriginalFilename();
@@ -209,7 +210,9 @@ public class FileService {
                     var bookImage = new BookImage();
                     bookImage.setImgUrl(finalName);
                     bookImage.setBook(book);
-                    bookImages.add(bookImage);
+
+                    // ✅ ĐÚNG: Add vào collection đã tồn tại
+                    book.getBookImages().add(bookImage);
 
                     // Đảm bảo timestamp khác nhau
                     try {
@@ -219,11 +222,10 @@ public class FileService {
                     }
                 }
             }
-
-            book.getBookImages().clear(); // Xóa ảnh cũ
-            book.setBookImages(bookImages);
-            this.bookRepository.save(book);
         }
+
+        // ✅ Chỉ save 1 lần cuối cùng
+        this.bookRepository.save(book);
     }
 
     // Method 3: Update both (combination of above)

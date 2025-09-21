@@ -37,12 +37,12 @@ import djnd.ben1607.drink_shop.utils.error.StorageException;
 
 @RestController
 @RequestMapping("/api/v1")
-public class FileControllor {
+public class FileController {
     @Value("${djnd.upload-file.base-uri}")
     private String baseURI;
     private final FileService fileService;
 
-    public FileControllor(FileService fileService) {
+    public FileController(FileService fileService) {
         this.fileService = fileService;
     }
 

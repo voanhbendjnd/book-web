@@ -24,6 +24,7 @@ import djnd.ben1607.drink_shop.repository.BookRepository;
 import djnd.ben1607.drink_shop.repository.CategoryRepository;
 import djnd.ben1607.drink_shop.utils.ChangeUpdate;
 import djnd.ben1607.drink_shop.utils.convert.ConvertModuleBook;
+import djnd.ben1607.drink_shop.utils.error.EillegalStateException;
 
 @Service
 public class BookService {
@@ -205,8 +206,10 @@ public class BookService {
         return ConvertModuleBook.fetch(book);
     }
 
-    public void deleteBookById(Long id) {
-        this.bookRepository.delete(this.bookRepository.findById(id).get());
+    public void deleteBookById(Long id) throws EillegalStateException {
+        var book = this.bookRepository.findById(id).orElseThrow(() -> new EillegalStateException("Book not found"));
+        book.setActive(false);
+        this.bookRepository.save(book);
     }
 
     public ResultPaginationDTO fetchAllWithSpecAndFilter(Specification<Book> spec, Pageable pageable) {

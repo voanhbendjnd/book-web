@@ -14,6 +14,7 @@ import djnd.ben1607.drink_shop.domain.response.book.ResBook;
 import djnd.ben1607.drink_shop.domain.response.book.ResCreateBook;
 import djnd.ben1607.drink_shop.service.BookService;
 import djnd.ben1607.drink_shop.utils.annotation.ApiMessage;
+import djnd.ben1607.drink_shop.utils.error.EillegalStateException;
 import djnd.ben1607.drink_shop.utils.error.IdInvalidException;
 
 import java.io.IOException;
@@ -106,10 +107,10 @@ public class BookController {
 
     @DeleteMapping("/books/{id}")
     @ApiMessage("Delete book by ID")
-    public ResponseEntity<Void> delete(@PathVariable("id") Long id) throws IdInvalidException {
+    public ResponseEntity<?> delete(@PathVariable("id") Long id) throws IdInvalidException, EillegalStateException {
         if (this.bookService.existsById(id)) {
             this.bookService.deleteBookById(id);
-            return ResponseEntity.ok(null);
+            return ResponseEntity.ok("Delete successfull");
         }
         throw new IdInvalidException(">>> ID book (" + id + ") is not exists! <<<");
     }

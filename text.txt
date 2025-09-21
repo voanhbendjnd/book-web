@@ -8,3 +8,5 @@ cache dùng để lấy dữ liệu mà nó  ít thay đổi rất phù hợp v�
 
 // file 
 FE gửi data trong đó có file ảnh sẽ nằm trong FormData, lúc nhận ở BE thì nhận là requestPart or Param để nhận ảnh, còn ModalAttribute để nhận data update
+
+ orphanRemoval = true của one to many thì hoạt động tốt nhất khi clear, thì sẽ xóa tất cả file liên quan
