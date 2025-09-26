@@ -62,14 +62,14 @@ public class User {
     private Instant updatedAt;
     private String avatar;
     private Boolean active;
+    @OneToMany(mappedBy = "user")
+    private List<Order> orders;
     @Column(name = "one_time_password")
     private String oneTimePassword;
     @Column(name = "otp_request_time")
     private Date otpRequestedTime;
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private List<Review> reviews;
-
-    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
 
     public boolean isOTPRequired() {
         if (this.getOneTimePassword() == null) {

@@ -64,4 +64,10 @@ public class OrderConcoller {
         }
         throw new IdInvalidException("Id cannot be empty and not null");
     }
+
+    @GetMapping("/orders/history")
+    @ApiMessage("Watching history")
+    public ResponseEntity<?> history() throws EillegalStateException {
+        return ResponseEntity.ok(this.orderService.watchHistory());
+    }
 }

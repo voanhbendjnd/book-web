@@ -72,4 +72,6 @@ public class Order {
     public void handleBeforeUpdate() {
         this.orderUpdateDate = Instant.now();
     }
+
+    String name;
 }

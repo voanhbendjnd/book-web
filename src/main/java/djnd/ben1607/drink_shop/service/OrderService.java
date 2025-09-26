@@ -1,8 +1,8 @@
 package djnd.ben1607.drink_shop.service;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
@@ -20,6 +20,7 @@ import djnd.ben1607.drink_shop.domain.entity.User;
 import djnd.ben1607.drink_shop.domain.request.OrderDTO;
 import djnd.ben1607.drink_shop.domain.request.RequestOrder;
 import djnd.ben1607.drink_shop.domain.response.ResultPaginationDTO;
+import djnd.ben1607.drink_shop.domain.response.order.OrderHistory;
 import djnd.ben1607.drink_shop.domain.response.order.ResOrder;
 import djnd.ben1607.drink_shop.repository.BookRepository;
 import djnd.ben1607.drink_shop.repository.CartItemRepository;
@@ -55,6 +56,7 @@ public class OrderService {
         order.setPaymentMethod(request.type());
         order.setStatus(OrderStatusEnum.PENDING);
         order.setPhone(request.phone());
+        order.setName(request.name());
         double caculatedTotalPrice = 0.0;
         order.setUser(user);
         for (var x : request.details()) {
@@ -87,6 +89,36 @@ public class OrderService {
         order.setOrderItems(orderItems);
         this.orderRepository.save(order);
 
+    }
+
+    // xem đơn hàng
+    public List<OrderHistory> watchHistory() throws EillegalStateException {
+        var user = this.userRepository.findByEmail(
+                SecurityUtils.getCurrentUserLogin().orElseThrow(() -> new EillegalStateException("User not found")));
+        var orders = user.getOrders();
+        var hisList = new ArrayList<OrderHistory>();
+        for (var x : orders) {
+            var his = new OrderHistory();
+            his.setCreatedAt(x.getOrderCreateDate());
+            his.setEmail(user.getEmail());
+            his.setName(x.getName());
+            his.setPhone(x.getPhone());
+            his.setTotalAmount(x.getTotalAmount());
+            his.setType(x.getPaymentMethod());
+            his.setUpdatedAt(x.getOrderUpdateDate());
+            his.setUserId(user.getId());
+            var details = new ArrayList<OrderHistory.Detail>();
+            for (var y : x.getOrderItems()) {
+                var detail = new OrderHistory.Detail();
+                detail.setBookName(y.getBook().getTitle());
+                detail.setId(y.getId());
+                detail.setQuantity(y.getQuantity());
+                details.add(detail);
+            }
+            his.setDetails(details);
+            hisList.add(his);
+        }
+        return hisList;
     }
 
     // checkout

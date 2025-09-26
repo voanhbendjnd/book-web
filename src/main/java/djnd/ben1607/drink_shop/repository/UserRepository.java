@@ -14,4 +14,10 @@ public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificat
 
     public boolean existsByEmail(String email);
 
+    // default User findByEmailOrThrow(String email) throws EillegalStateException {
+    // Supplier<EillegalStateException> supplier = () -> new EillegalStateException(
+    // "User with email " + email + " not found");
+    // return findByEmail(email).orElseThrow(supplier);
+    // }
+
 }
