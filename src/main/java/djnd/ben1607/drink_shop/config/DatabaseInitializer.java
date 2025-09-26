@@ -1,11 +1,11 @@
 package djnd.ben1607.drink_shop.config;
 
-import java.time.LocalDateTime;
+// import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+// import org.slf4j.Logger;
+// import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -24,7 +24,7 @@ public class DatabaseInitializer implements CommandLineRunner {
     private final PermissionRepository permissionRepository;
     private final RoleRepository RoleRepository;
     private final PasswordEncoder passwordEncoder;
-    Logger logger = LoggerFactory.getLogger(DatabaseInitializer.class);
+    // Logger logger = LoggerFactory.getLogger(DatabaseInitializer.class);
 
     public DatabaseInitializer(UserRepository userRepository, PermissionRepository permissionRepository,
             RoleRepository roleRepository, PasswordEncoder passwordEncoder) {
@@ -99,11 +99,11 @@ public class DatabaseInitializer implements CommandLineRunner {
         }
         if (permissionCnt != 0 && roleCnt != 0 && userCnt != 0) {
             System.out.println(">>> SKIP PROCESSING INITIALIER <<<");
-            logger.info("Run success at {}", LocalDateTime.now());
+            // logger.info("Run success at {}", LocalDateTime.now());
 
         } else {
             System.out.println(">>> INIT DATABASE SUCCESSFULL <<<");
-            logger.info("Run success at {}", LocalDateTime.now());
+            // logger.info("Run success at {}", LocalDateTime.now());
         }
     }
 

@@ -2,6 +2,8 @@ package djnd.ben1607.drink_shop.controller.client;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -14,6 +16,7 @@ import com.turkraft.springfilter.boot.Filter;
 
 import djnd.ben1607.drink_shop.domain.entity.Order;
 import djnd.ben1607.drink_shop.domain.request.OrderDTO;
+import djnd.ben1607.drink_shop.domain.request.RequestOrder;
 import djnd.ben1607.drink_shop.domain.response.ResultPaginationDTO;
 import djnd.ben1607.drink_shop.domain.response.order.ResOrder;
 import djnd.ben1607.drink_shop.service.OrderService;
@@ -30,6 +33,13 @@ import lombok.experimental.FieldDefaults;
 @RequiredArgsConstructor
 public class OrderConcoller {
     OrderService orderService;
+
+    @PostMapping("/orders")
+    @ApiMessage("Order book")
+    public ResponseEntity<?> order(@RequestBody RequestOrder request) throws EillegalStateException {
+        this.orderService.orderProduct(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body("Đặt hàng thành công");
+    }
 
     @PostMapping("/checkout")
     @ApiMessage("Check out")

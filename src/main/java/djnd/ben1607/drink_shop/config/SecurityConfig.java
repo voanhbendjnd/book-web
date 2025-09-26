@@ -58,7 +58,9 @@ public class SecurityConfig {
                 "/swagger-ui.html",
                 "/api/v1/users/**",
                 "/storage/**",
-                "/api/v1/images/**"
+                "/api/v1/images/**",
+                "/api/v1/books/**",
+                "/api/v1/categories"
         };
         http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource))
@@ -71,6 +73,8 @@ public class SecurityConfig {
                                 .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
                                 .requestMatchers(HttpMethod.POST, "/auth/register").permitAll()
                                 .requestMatchers(HttpMethod.POST, "/auth/input-otp").permitAll()
+                                .requestMatchers(HttpMethod.GET, "/books").permitAll()
+
                                 .requestMatchers(HttpMethod.POST, "/auth/forget-password").permitAll()
                                 .anyRequest().authenticated() // tất cả request khác không có thì buộc phải có qua
                                                               // authentication

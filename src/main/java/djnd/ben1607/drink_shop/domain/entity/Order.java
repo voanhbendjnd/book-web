@@ -50,6 +50,8 @@ public class Order {
     @Enumerated(EnumType.STRING)
     OrderStatusEnum status;
     Double totalAmount;
+    String addressShipping;
+    String phone;
     @Embedded
     Address address;
     @Enumerated(EnumType.STRING)

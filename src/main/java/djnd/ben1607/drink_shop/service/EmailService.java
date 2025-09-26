@@ -101,5 +101,6 @@ public class EmailService {
         user.setOneTimePassword(null);
         user.setOtpRequestedTime(null);
         this.userRepository.save(user);
+
     }
 }

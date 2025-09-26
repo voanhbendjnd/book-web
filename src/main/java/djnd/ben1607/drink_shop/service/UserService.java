@@ -7,8 +7,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+// import org.slf4j.Logger;
+// import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
@@ -39,7 +39,7 @@ public class UserService {
     private final CartService cartService;
     private final PasswordEncoder passwordEncoder;
     private final CartRepository cartRepository;
-    Logger log = LoggerFactory.getLogger(UserService.class);
+    // Logger log = LoggerFactory.getLogger(UserService.class);
 
     public boolean existsById(Long id) {
         return this.userRepository.existsById(id);
@@ -90,7 +90,7 @@ public class UserService {
         userNew.setPhone(user.getPhone());
         User lastUser = this.userRepository.save(userNew);
         this.cartService.create(lastUser.getId());
-        log.info("adding user with email {} successfull", lastUser.getEmail());
+        // log.info("adding user with email {} successfull", lastUser.getEmail());
 
         return ConvertModuleUser.createdTran(lastUser);
 

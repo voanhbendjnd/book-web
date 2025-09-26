@@ -1,6 +1,8 @@
 package djnd.ben1607.drink_shop.service;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
@@ -16,11 +18,14 @@ import djnd.ben1607.drink_shop.domain.entity.Order;
 import djnd.ben1607.drink_shop.domain.entity.OrderItem;
 import djnd.ben1607.drink_shop.domain.entity.User;
 import djnd.ben1607.drink_shop.domain.request.OrderDTO;
+import djnd.ben1607.drink_shop.domain.request.RequestOrder;
 import djnd.ben1607.drink_shop.domain.response.ResultPaginationDTO;
 import djnd.ben1607.drink_shop.domain.response.order.ResOrder;
+import djnd.ben1607.drink_shop.repository.BookRepository;
 import djnd.ben1607.drink_shop.repository.CartItemRepository;
 import djnd.ben1607.drink_shop.repository.CartRepository;
 import djnd.ben1607.drink_shop.repository.OrderRepository;
+import djnd.ben1607.drink_shop.repository.UserRepository;
 import djnd.ben1607.drink_shop.utils.SecurityUtils;
 import djnd.ben1607.drink_shop.utils.constant.OrderStatusEnum;
 import djnd.ben1607.drink_shop.utils.error.EillegalStateException;
@@ -37,6 +42,52 @@ public class OrderService {
     UserService userService;
     CartRepository cartRepository;
     CartItemRepository cartItemRepository;
+    BookRepository bookRepository;
+    UserRepository userRepository;
+
+    @Transactional
+    public void orderProduct(RequestOrder request) throws EillegalStateException {
+        User user = this.userRepository.findByEmail(
+                SecurityUtils.getCurrentUserLogin().orElseThrow(() -> new EillegalStateException("User not found")));
+        var orderItems = new ArrayList<OrderItem>();
+        var order = new Order();
+        order.setAddressShipping(request.address());
+        order.setPaymentMethod(request.type());
+        order.setStatus(OrderStatusEnum.PENDING);
+        order.setPhone(request.phone());
+        double caculatedTotalPrice = 0.0;
+        order.setUser(user);
+        for (var x : request.details()) {
+            Book book = this.bookRepository.findByIdOrThrow(x.bookId());
+            if (x.quantity() > book.getStockQuantity()) {
+                throw new EillegalStateException("Quantity maximum is " + book.getStockQuantity());
+            } else {
+                int lastQty = book.getStockQuantity() - x.quantity();
+                book.setStockQuantity(lastQty);
+                int sold = book.getSold() != null ? book.getSold() : 0;
+                book.setSold(sold + x.quantity());
+                caculatedTotalPrice += book.getPrice() * x.quantity();
+                if (lastQty <= 0) {
+                    // book.setActive(false);
+                }
+                var orderItem = new OrderItem();
+                orderItem.setBook(book);
+                orderItem.setQuantity(x.quantity());
+                orderItem.setOrder(order);
+                orderItems.add(orderItem);
+
+            }
+        }
+        caculatedTotalPrice += 10000;
+        if (Math.abs(caculatedTotalPrice - request.totalAmount()) > 0.01) {
+            throw new EillegalStateException("Invalid total amount. Recalculated total is " + caculatedTotalPrice);
+
+        }
+        order.setTotalAmount(caculatedTotalPrice);
+        order.setOrderItems(orderItems);
+        this.orderRepository.save(order);
+
+    }
 
     // checkout
     // không cần lưu item vì khi lưu order thì các item sẽ tự động lưu không cần

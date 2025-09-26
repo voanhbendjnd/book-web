@@ -12,92 +12,93 @@ import djnd.ben1607.drink_shop.domain.response.book.ResCreateBook;
 import djnd.ben1607.drink_shop.domain.response.book.ResUpdateBook;
 
 public class ConvertModuleBook {
-    public static ResCreateBook create(Book book) {
-        ResCreateBook res = new ResCreateBook();
-        res.setId(book.getId());
-        res.setAuthor(book.getAuthor());
-        res.setCoverImage(book.getCoverImage());
-        res.setDescription(book.getDescription());
-        res.setIsbn(book.getIsbn());
-        res.setLanguage(book.getLanguage());
-        res.setNumberOfPages(book.getNumberOfPages());
-        res.setPrice(book.getPrice());
-        res.setStockQuantity(book.getStockQuantity());
-        res.setPublicationDate(book.getPublicationDate());
-        res.setTitle(book.getTitle());
-        res.setPublisher(book.getPublisher());
-        res.setCreatedAt(book.getCreatedAt());
-        res.setCreatedBy(book.getCreatedBy());
-        res.setImgs((book.getBookImages() != null)
-                ? book.getBookImages().stream().map(BookImage::getImgUrl).collect(Collectors.toList())
-                : new ArrayList<>());
-        res.setCategories(book.getCategories() != null
-                ? book.getCategories().stream().map(Category::getName).collect(Collectors.toList())
-                : new ArrayList<>());
+        public static ResCreateBook create(Book book) {
+                ResCreateBook res = new ResCreateBook();
+                res.setId(book.getId());
+                res.setAuthor(book.getAuthor());
+                res.setCoverImage(book.getCoverImage());
+                res.setDescription(book.getDescription());
+                res.setIsbn(book.getIsbn());
+                res.setLanguage(book.getLanguage());
+                res.setNumberOfPages(book.getNumberOfPages());
+                res.setPrice(book.getPrice());
+                res.setStockQuantity(book.getStockQuantity());
+                res.setPublicationDate(book.getPublicationDate());
+                res.setTitle(book.getTitle());
+                res.setPublisher(book.getPublisher());
+                res.setCreatedAt(book.getCreatedAt());
+                res.setCreatedBy(book.getCreatedBy());
+                res.setImgs((book.getBookImages() != null)
+                                ? book.getBookImages().stream().map(BookImage::getImgUrl).collect(Collectors.toList())
+                                : new ArrayList<>());
+                res.setCategories(book.getCategories() != null
+                                ? book.getCategories().stream().map(Category::getName).collect(Collectors.toList())
+                                : new ArrayList<>());
 
-        return res;
-    }
+                return res;
+        }
 
-    public static ResUpdateBook update(Book book) {
-        ResUpdateBook res = new ResUpdateBook();
-        res.setId(book.getId());
-        res.setAuthor(book.getAuthor());
-        res.setCoverImage(book.getCoverImage());
-        res.setDescription(book.getDescription());
-        res.setIsbn(book.getIsbn());
-        res.setLanguage(book.getLanguage());
-        res.setNumberOfPages(book.getNumberOfPages());
-        res.setPrice(book.getPrice());
-        res.setTitle(book.getTitle());
-        res.setStockQuantity(book.getStockQuantity());
-        res.setPublicationDate(book.getPublicationDate());
-        res.setPublisher(book.getPublisher());
-        res.setUpdatedAt(book.getUpdatedAt());
-        res.setUpdatedBy(book.getUpdatedBy());
-        res.setImgs((book.getBookImages() != null)
-                ? book.getBookImages().stream().map(BookImage::getImgUrl).collect(Collectors.toList())
-                : new ArrayList<>());
-        res.setCategories(book.getCategories() != null
-                ? book.getCategories().stream().map(Category::getName).collect(Collectors.toList())
-                : new ArrayList<>());
+        public static ResUpdateBook update(Book book) {
+                ResUpdateBook res = new ResUpdateBook();
+                res.setId(book.getId());
+                res.setAuthor(book.getAuthor());
+                res.setCoverImage(book.getCoverImage());
+                res.setDescription(book.getDescription());
+                res.setIsbn(book.getIsbn());
+                res.setLanguage(book.getLanguage());
+                res.setNumberOfPages(book.getNumberOfPages());
+                res.setPrice(book.getPrice());
+                res.setTitle(book.getTitle());
+                res.setStockQuantity(book.getStockQuantity());
+                res.setPublicationDate(book.getPublicationDate());
+                res.setPublisher(book.getPublisher());
+                res.setUpdatedAt(book.getUpdatedAt());
+                res.setUpdatedBy(book.getUpdatedBy());
+                res.setImgs((book.getBookImages() != null)
+                                ? book.getBookImages().stream().map(BookImage::getImgUrl).collect(Collectors.toList())
+                                : new ArrayList<>());
+                res.setCategories(book.getCategories() != null
+                                ? book.getCategories().stream().map(Category::getName).collect(Collectors.toList())
+                                : new ArrayList<>());
 
-        return res;
-    }
+                return res;
+        }
 
-    public static ResBook fetch(Book book) {
-        ResBook res = new ResBook();
-        res.setId(book.getId());
-        res.setAuthor(book.getAuthor());
-        res.setCoverImage(book.getCoverImage());
-        res.setDescription(book.getDescription());
-        res.setIsbn(book.getIsbn());
-        res.setTitle(book.getTitle());
-        res.setLanguage(book.getLanguage());
-        res.setNumberOfPages(book.getNumberOfPages());
-        res.setPrice(book.getPrice());
-        res.setStockQuantity(book.getStockQuantity());
-        res.setPublicationDate(book.getPublicationDate());
-        res.setPublisher(book.getPublisher());
-        res.setUpdatedAt(book.getUpdatedAt());
-        res.setUpdatedBy(book.getUpdatedBy());
-        res.setCreatedAt(book.getCreatedAt());
-        res.setCreatedBy(book.getCreatedBy());
-        res.setCategories(book.getCategories() != null
-                ? book.getCategories().stream().map(Category::getName).collect(Collectors.toList())
-                : new ArrayList<>());
-        res.setImgs((book.getBookImages() != null)
-                ? book.getBookImages().stream().map(BookImage::getImgUrl).collect(Collectors.toList())
-                : new ArrayList<>());
-        // if (book.getCategories() != null && !book.getCategories().isEmpty()) {
-        // res.setCategories(book.getCategories().stream().map(x ->
-        // x.getName()).collect(Collectors.toList()));
-        // }
-        res.setTotalReviews((double) book.getReviews().stream().map(Review::getId).count());
-        Double ratingAverageAllReview = book.getReviews().stream()
-                .mapToDouble(Review::getRating)
-                .average()
-                .orElse(0.0);
-        res.setRatingAverage(ratingAverageAllReview);
-        return res;
-    }
+        public static ResBook fetch(Book book) {
+                ResBook res = new ResBook();
+                res.setId(book.getId());
+                res.setAuthor(book.getAuthor());
+                res.setCoverImage(book.getCoverImage());
+                res.setDescription(book.getDescription());
+                res.setIsbn(book.getIsbn());
+                res.setTitle(book.getTitle());
+                res.setLanguage(book.getLanguage());
+                res.setNumberOfPages(book.getNumberOfPages());
+                res.setPrice(book.getPrice());
+                res.setStockQuantity(book.getStockQuantity());
+                res.setPublicationDate(book.getPublicationDate());
+                res.setPublisher(book.getPublisher());
+                res.setUpdatedAt(book.getUpdatedAt());
+                res.setUpdatedBy(book.getUpdatedBy());
+                res.setCreatedAt(book.getCreatedAt());
+                res.setCreatedBy(book.getCreatedBy());
+                res.setSold(book.getSold() != null ? (double) book.getSold() : 0);
+                res.setCategories(book.getCategories() != null
+                                ? book.getCategories().stream().map(Category::getName).collect(Collectors.toList())
+                                : new ArrayList<>());
+                res.setImgs((book.getBookImages() != null)
+                                ? book.getBookImages().stream().map(BookImage::getImgUrl).collect(Collectors.toList())
+                                : new ArrayList<>());
+                // if (book.getCategories() != null && !book.getCategories().isEmpty()) {
+                // res.setCategories(book.getCategories().stream().map(x ->
+                // x.getName()).collect(Collectors.toList()));
+                // }
+                res.setTotalReviews((double) book.getReviews().stream().map(Review::getId).count());
+                Double ratingAverageAllReview = book.getReviews().stream()
+                                .mapToDouble(Review::getRating)
+                                .average()
+                                .orElse(0.0);
+                res.setRatingAverage(ratingAverageAllReview);
+                return res;
+        }
 }
