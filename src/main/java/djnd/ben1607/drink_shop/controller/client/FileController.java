@@ -72,7 +72,7 @@ public class FileController {
                         SecurityUtils.getCurrentUserLogin().get()));
     }
 
-    @PostMapping("/files/upload/avatdsaar")
+    @PostMapping("/files/upload/avatar/users")
     @ApiMessage("Upload single file")
     public ResponseEntity<UploadFileResponse> up(@ModelAttribute FileUploadRequest request)
             throws URISyntaxException, IOException, StorageException {
@@ -119,6 +119,29 @@ public class FileController {
         }
         this.fileService.updateBookImages(coverImage, imgs, id);
         return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body("Upload image for book successfull");
+    }
+
+    @PostMapping("/files/upload/avatar/user")
+    @ApiMessage("Update avatar")
+    public ResponseEntity<?> avatar(
+            @RequestPart("avatar") MultipartFile avatar,
+            @RequestParam("id") Long id)
+            throws IOException, EillegalStateException {
+        if (avatar == null || avatar.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Avatar is required");
+        }
+        String originalFileName = avatar.getOriginalFilename();
+        if (originalFileName == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid file name");
+        }
+        try {
+            this.fileService.updateAvatar(avatar, id);
+            return ResponseEntity.ok("Upload avatar successfully");
+        } catch (Exception ex) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Failed to upload avatar: " + ex.getMessage());
+        }
+
     }
 
     @PostMapping("/files/upload/cover-image/book")

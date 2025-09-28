@@ -175,6 +175,27 @@ public class FileService {
         }
     }
 
+    public void updateAvatar(MultipartFile file, Long userId) throws IOException, EillegalStateException {
+        if (file != null && !file.isEmpty()) {
+            String uploadPath = baseURI + "user";
+            Path directoryPath = Paths.get(uploadPath);
+            Files.createDirectories(directoryPath);
+            String originalFileName = file.getOriginalFilename();
+            if (originalFileName == null) {
+                originalFileName = "avatar.jpg";
+            }
+            String finalName = System.currentTimeMillis() + "-" + StringUtils.cleanPath(originalFileName);
+            Path filePath = directoryPath.resolve(finalName);
+            try (InputStream inputStream = file.getInputStream()) {
+                Files.copy(inputStream, filePath, StandardCopyOption.REPLACE_EXISTING);
+            }
+            var user = this.userRepository.findById(userId)
+                    .orElseThrow(() -> new EillegalStateException("User not found"));
+            user.setAvatar(finalName);
+            this.userRepository.save(user);
+        }
+    }
+
     // Method 2: Update slider images only
     @Transactional
     public void updateBookSliderImages(List<MultipartFile> imgs, Long bookId)

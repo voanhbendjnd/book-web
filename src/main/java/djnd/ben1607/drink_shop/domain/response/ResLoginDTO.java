@@ -2,6 +2,7 @@ package djnd.ben1607.drink_shop.domain.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import djnd.ben1607.drink_shop.utils.constant.GenderEnum;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -27,6 +28,7 @@ public class ResLoginDTO {
         private String address;
         private String phone;
         private String role;
+        private GenderEnum gender;
     }
 
     @Getter

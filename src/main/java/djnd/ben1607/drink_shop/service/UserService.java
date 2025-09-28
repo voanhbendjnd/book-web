@@ -19,8 +19,10 @@ import org.springframework.stereotype.Service;
 
 import djnd.ben1607.drink_shop.domain.entity.User;
 import djnd.ben1607.drink_shop.domain.request.CreateAccountDTO;
+import djnd.ben1607.drink_shop.domain.request.UserUpdate;
 import djnd.ben1607.drink_shop.domain.response.ResLoginDTO;
 import djnd.ben1607.drink_shop.domain.response.ResultPaginationDTO;
+import djnd.ben1607.drink_shop.domain.response.ResLoginDTO.UserLogin;
 import djnd.ben1607.drink_shop.domain.response.user.ResCreateUser;
 import djnd.ben1607.drink_shop.domain.response.user.ResFetchUser;
 import djnd.ben1607.drink_shop.domain.response.user.ResUpdateUser;
@@ -206,6 +208,7 @@ public class UserService {
         userLogin.setName(user.getName());
         userLogin.setPhone(user.getPhone());
         userLogin.setRole(user.getRole().getName());
+        userLogin.setGender(user.getGender());
         res.setUser(userLogin);
         return res;
     }
@@ -215,6 +218,19 @@ public class UserService {
         User user = this.userRepository.findByEmail(
                 SecurityUtils.getCurrentUserLogin().orElseThrow(() -> new EillegalStateException("User not found")));
         user.setRefreshToken(null);
+        this.userRepository.save(user);
+    }
+
+    @CacheEvict(value = "userAccount", allEntries = true)
+    public void updateUserGetAccount(UserUpdate dto) throws EillegalStateException {
+        var user = this.userRepository.findById(dto.id())
+                .orElseThrow(() -> new EillegalStateException("User not found"));
+        user.setAddress(dto.address());
+        user.setEmail(dto.email());
+        user.setAvatar(dto.avatar());
+        user.setName(dto.name());
+        user.setPhone(dto.phone());
+        user.setGender(dto.gender());
         this.userRepository.save(user);
     }
 

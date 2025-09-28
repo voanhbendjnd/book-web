@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 import djnd.ben1607.drink_shop.domain.entity.User;
 import djnd.ben1607.drink_shop.domain.request.ChangePasswordDTO;
 import djnd.ben1607.drink_shop.domain.request.LoginDTO;
+import djnd.ben1607.drink_shop.domain.request.UserUpdate;
 import djnd.ben1607.drink_shop.domain.request.CreateAccountDTO;
 import djnd.ben1607.drink_shop.domain.response.ResLoginDTO;
 import djnd.ben1607.drink_shop.domain.response.user.ResCreateUser;
@@ -73,7 +74,7 @@ public class AuthController {
         if (user != null) {
             ResLoginDTO.UserLogin userLogin = new ResLoginDTO.UserLogin(user.getId(), user.getEmail(), user.getName(),
                     user.getAvatar(), user.getAddress(), user.getPhone(),
-                    user.getRole().getName());
+                    user.getRole().getName(), user.getGender());
             res.setUser(userLogin);
         }
         // -> create token <-
@@ -115,7 +116,7 @@ public class AuthController {
         ResLoginDTO res = new ResLoginDTO();
         ResLoginDTO.UserLogin userLogin = new ResLoginDTO.UserLogin(user.getId(), user.getEmail(), user.getName(),
                 user.getAvatar(), user.getAddress(), user.getPhone(),
-                user.getRole().getName());
+                user.getRole().getName(), user.getGender());
         res.setUser(userLogin);
         // -> create token <-
         String accessToken = this.securityUtils.createAccessToken(email, res);
@@ -179,14 +180,14 @@ public class AuthController {
 
     @PutMapping("/auth/change-password")
     @ApiMessage("Change password")
-    public ResponseEntity<Void> changePassword(@RequestBody ChangePasswordDTO request) throws IdInvalidException {
+    public ResponseEntity<?> changePassword(@RequestBody ChangePasswordDTO request) throws IdInvalidException {
         String email = SecurityUtils.getCurrentUserLogin().get();
         User user = this.userService.fetchUserByEmail(email);
         if (!this.passwordEncoder.matches(request.getOldPassword(), user.getPassword())) {
-            throw new IdInvalidException(">>> Old password is incorrect, please input old password again! <<<");
+            throw new IdInvalidException("Old password is incorrect, please input old password again!");
         }
         if (!request.getNewPassword().equals(request.getConfirmPassword())) {
-            throw new IdInvalidException(">>> New password and confirm password is not the same! <<<");
+            throw new IdInvalidException("New password and confirm password is not the same!");
         }
         user.setPassword(this.passwordEncoder.encode(request.getConfirmPassword()));
         user.setRefreshToken(null);
@@ -198,11 +199,36 @@ public class AuthController {
                 .path("/")
                 .maxAge(0)
                 .build();
-        return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, deleteFullToken.toString()).body(null);
+        return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, deleteFullToken.toString())
+                .body("Change password successfully");
 
     }
 
-    @PostMapping("/auth/get-otp")
+    @PutMapping("/auth/change-password-otp")
+    @ApiMessage("Change password by OTP")
+    public ResponseEntity<?> changePasswordByOTPCode(@RequestBody ChangePasswordDTO dto) throws IdInvalidException {
+        var user = this.userRepository.findByEmail(dto.getEmail());
+        if (user != null) {
+            if (dto.getNewPassword().equals(dto.getConfirmPassword())) {
+                user.setPassword(this.passwordEncoder.encode(dto.getConfirmPassword()));
+                user.setRefreshToken(null);
+                this.userRepository.save(user);
+                ResponseCookie deleteCookie = ResponseCookie.from("refresh_token", null)
+                        .httpOnly(true)
+                        .secure(true)
+                        .path("/")
+                        .maxAge(0)
+                        .build();
+                return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, deleteCookie.toString())
+                        .body("Change password successfull");
+            } else {
+                throw new IdInvalidException("New password and confirm password not the same!");
+            }
+        }
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Email user not found!");
+    }
+
+    @PostMapping("/auth/forgot-password")
     @ApiMessage("Get one time password")
     public ResponseEntity<Void> sendOTP(@RequestBody User user) throws IdInvalidException {
         if (!this.userService.existsByEmail(user.getEmail())) {
@@ -213,33 +239,37 @@ public class AuthController {
         return ResponseEntity.ok(null);
     }
 
-    @PutMapping("/auth/change-password-by-otp")
+    @PutMapping("/auth/verify-otp")
     @ApiMessage("Change password by One time password")
-    public ResponseEntity<Void> changePasswordByOTP(
+    public ResponseEntity<?> changePasswordByOTP(
             @RequestBody ChangePasswordDTO request) throws IdInvalidException {
         User user = this.userService.fetchUserByEmail(request.getEmail());
         if (user == null) {
-            throw new IdInvalidException(">>> Email not found! <<<");
+            throw new IdInvalidException("Email not found!");
         }
         if (!user.isOTPRequired()) {
-            throw new IdInvalidException(">>> OTP expires! <<<");
+            throw new IdInvalidException("OTP expires!");
         }
-        if (!this.passwordEncoder.matches(request.getOneTimePassword(), user.getOneTimePassword())) {
+        if (!this.passwordEncoder.matches(request.getOneTimePassword(),
+                user.getOneTimePassword())) {
             throw new IdInvalidException(">>> OTP incorrect! <<<");
         }
-        if (!request.getConfirmPassword().equals(request.getNewPassword())) {
-            throw new IdInvalidException(">>> Password and confirm password is not the same! <<<");
-        }
-        user.setPassword(this.passwordEncoder.encode(request.getConfirmPassword()));
-        user.setRefreshToken(null);
-        this.userRepository.save(user);
-        ResponseCookie setCookie = ResponseCookie.from("refresh_token", null)
-                .httpOnly(true)
-                .secure(true)
-                .path("/")
-                .maxAge(0)
-                .build();
-        return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, setCookie.toString()).body(null);
+        // if (!request.getConfirmPassword().equals(request.getNewPassword())) {
+        // throw new IdInvalidException(">>> Password and confirm password is not the
+        // same! <<<");
+        // }
+        // user.setPassword(this.passwordEncoder.encode(request.getConfirmPassword()));
+        // user.setRefreshToken(null);
+        // this.userRepository.save(user);
+        // ResponseCookie setCookie = ResponseCookie.from("refresh_token", null)
+        // .httpOnly(true)
+        // .secure(true)
+        // .path("/")
+        // .maxAge(0)
+        // .build();
+        // return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE,
+        // setCookie.toString()).body(null);
+        return ResponseEntity.ok("Verify OTP successfully");
     }
 
     @PostMapping("/auth/register")
@@ -263,4 +293,10 @@ public class AuthController {
         return ResponseEntity.ok(this.userService.getAccount());
     }
 
+    @PutMapping("/auth/user/update")
+    @ApiMessage("Update user by id")
+    public ResponseEntity<?> updateUserById(@RequestBody UserUpdate dto) throws EillegalStateException {
+        this.userService.updateUserGetAccount(dto);
+        return ResponseEntity.ok(null);
+    }
 }
