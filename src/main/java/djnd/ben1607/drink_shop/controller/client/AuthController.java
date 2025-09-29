@@ -204,7 +204,7 @@ public class AuthController {
 
     }
 
-    @PutMapping("/auth/change-password-otp")
+    @PostMapping("/auth/change-password-by-otp")
     @ApiMessage("Change password by OTP")
     public ResponseEntity<?> changePasswordByOTPCode(@RequestBody ChangePasswordDTO dto) throws IdInvalidException {
         var user = this.userRepository.findByEmail(dto.getEmail());
@@ -239,7 +239,7 @@ public class AuthController {
         return ResponseEntity.ok(null);
     }
 
-    @PutMapping("/auth/verify-otp")
+    @PostMapping("/auth/verify-otp")
     @ApiMessage("Change password by One time password")
     public ResponseEntity<?> changePasswordByOTP(
             @RequestBody ChangePasswordDTO request) throws IdInvalidException {
@@ -297,6 +297,6 @@ public class AuthController {
     @ApiMessage("Update user by id")
     public ResponseEntity<?> updateUserById(@RequestBody UserUpdate dto) throws EillegalStateException {
         this.userService.updateUserGetAccount(dto);
-        return ResponseEntity.ok(null);
+        return ResponseEntity.ok("Update successfull");
     }
 }

@@ -227,7 +227,6 @@ public class UserService {
                 .orElseThrow(() -> new EillegalStateException("User not found"));
         user.setAddress(dto.address());
         user.setEmail(dto.email());
-        user.setAvatar(dto.avatar());
         user.setName(dto.name());
         user.setPhone(dto.phone());
         user.setGender(dto.gender());
