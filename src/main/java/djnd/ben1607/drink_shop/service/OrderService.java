@@ -21,6 +21,7 @@ import djnd.ben1607.drink_shop.domain.request.OrderDTO;
 import djnd.ben1607.drink_shop.domain.request.RequestOrder;
 import djnd.ben1607.drink_shop.domain.response.ResultPaginationDTO;
 import djnd.ben1607.drink_shop.domain.response.order.OrderHistory;
+import djnd.ben1607.drink_shop.domain.response.order.ResDataOrder;
 import djnd.ben1607.drink_shop.domain.response.order.ResOrder;
 import djnd.ben1607.drink_shop.repository.BookRepository;
 import djnd.ben1607.drink_shop.repository.CartItemRepository;
@@ -29,6 +30,7 @@ import djnd.ben1607.drink_shop.repository.OrderRepository;
 import djnd.ben1607.drink_shop.repository.UserRepository;
 import djnd.ben1607.drink_shop.utils.SecurityUtils;
 import djnd.ben1607.drink_shop.utils.constant.OrderStatusEnum;
+import djnd.ben1607.drink_shop.utils.convert.OrderConvert;
 import djnd.ben1607.drink_shop.utils.error.EillegalStateException;
 import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
@@ -188,7 +190,7 @@ public class OrderService {
     }
 
     public ResultPaginationDTO getAllOrder(Specification<Order> spec, Pageable pageable) {
-        Page<Order> page = this.orderRepository.findAll(pageable);
+        Page<Order> page = this.orderRepository.findAll(spec, pageable);
         ResultPaginationDTO res = new ResultPaginationDTO();
         ResultPaginationDTO.Meta mt = new ResultPaginationDTO.Meta();
         mt.setPage(pageable.getPageNumber() + 1);
@@ -196,7 +198,8 @@ public class OrderService {
         mt.setPages(page.getTotalPages());
         mt.setTotal(page.getTotalElements());
         res.setMeta(mt);
-        res.setResult(page.getContent());
+
+        res.setResult(page.getContent().stream().map(OrderConvert::getOrder).collect(Collectors.toList()));
         return res;
     }
 

@@ -43,9 +43,9 @@ public class OrderConcoller {
 
     @PostMapping("/checkout")
     @ApiMessage("Check out")
-    public ResponseEntity<Void> checkout(@RequestBody OrderDTO dto) {
+    public ResponseEntity<?> checkout(@RequestBody OrderDTO dto) {
         this.orderService.checkout(dto);
-        return ResponseEntity.ok(null);
+        return ResponseEntity.ok("Check out success");
     }
 
     @GetMapping("/orders")
