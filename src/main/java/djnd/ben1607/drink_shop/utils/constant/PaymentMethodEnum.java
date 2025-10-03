@@ -7,7 +7,7 @@ public enum PaymentMethodEnum {
     BANK_TRANSFER,
     MOMO,
     ZALO_PAY,
-    VNPay,
+    VNPAY,
     NAPAS,
     Google_Play
 }

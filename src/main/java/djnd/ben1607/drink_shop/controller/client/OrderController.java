@@ -31,14 +31,13 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequestMapping("/api/v1")
 @RequiredArgsConstructor
-public class OrderConcoller {
+public class OrderController {
     OrderService orderService;
 
     @PostMapping("/orders")
     @ApiMessage("Order book")
     public ResponseEntity<?> order(@RequestBody RequestOrder request) throws EillegalStateException {
-        this.orderService.orderProduct(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body("Đặt hàng thành công");
+        return ResponseEntity.status(HttpStatus.CREATED).body(this.orderService.orderProduct(request));
     }
 
     @PostMapping("/checkout")

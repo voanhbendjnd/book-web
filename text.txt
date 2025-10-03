@@ -1,9 +1,4 @@
- permissionList.add(new Permission("Create new a category", "/api/v1/categories", "POST", "CATEGORIES"));
-            permissionList.add(new Permission("Update a category", "/api/v1/categories", "PUT", "CATEGORIES"));
-            permissionList.add(new Permission("Delete a category", "/api/v1/categories/{id}", "DELETE", "CATEGORIES"));
-            permissionList.add(new Permission("Get a category", "/api/v1/categories/{id}", "GET", "CATEGORIES"));
-            permissionList.add(new Permission("Fetch all category", "/api/v1/categories", "GET", "CATEGORIES"));
-
+ENUM('CREDIT_CARD', 'DEBIT_CARD', 'CASH_ON_DELIVERY', 'BANK_TRANSFER', 'MOMO', 'ZALO_PAY', 'VNPAY')
 cache dùng để lấy dữ liệu mà nó  ít thay đổi rất phù hợp với dữ liệu mà người dùng lấy liên tục mà ít thay đổi chủ yếu là đôi ba ngày mới đổi một lần
 
 // file 

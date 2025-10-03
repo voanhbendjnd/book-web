@@ -49,7 +49,7 @@ public class OrderService {
     UserRepository userRepository;
 
     @Transactional
-    public void orderProduct(RequestOrder request) throws EillegalStateException {
+    public ResOrder orderProduct(RequestOrder request) throws EillegalStateException {
         User user = this.userRepository.findByEmail(
                 SecurityUtils.getCurrentUserLogin().orElseThrow(() -> new EillegalStateException("User not found")));
         var orderItems = new ArrayList<OrderItem>();
@@ -89,7 +89,12 @@ public class OrderService {
         }
         order.setTotalAmount(caculatedTotalPrice);
         order.setOrderItems(orderItems);
-        this.orderRepository.save(order);
+        var orderLast = this.orderRepository.save(order);
+        var res = new ResOrder();
+        res.setId(orderLast.getId());
+        res.setStatus(orderLast.getPaymentMethod());
+        res.setTotalAmount(orderLast.getTotalAmount());
+        return res;
 
     }
 
