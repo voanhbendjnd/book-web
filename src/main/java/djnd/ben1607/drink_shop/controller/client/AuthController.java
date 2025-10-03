@@ -299,4 +299,5 @@ public class AuthController {
         this.userService.updateUserGetAccount(dto);
         return ResponseEntity.ok("Update successfull");
     }
+
 }

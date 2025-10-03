@@ -22,7 +22,6 @@ import djnd.ben1607.drink_shop.domain.request.CreateAccountDTO;
 import djnd.ben1607.drink_shop.domain.request.UserUpdate;
 import djnd.ben1607.drink_shop.domain.response.ResLoginDTO;
 import djnd.ben1607.drink_shop.domain.response.ResultPaginationDTO;
-import djnd.ben1607.drink_shop.domain.response.ResLoginDTO.UserLogin;
 import djnd.ben1607.drink_shop.domain.response.user.ResCreateUser;
 import djnd.ben1607.drink_shop.domain.response.user.ResFetchUser;
 import djnd.ben1607.drink_shop.domain.response.user.ResUpdateUser;

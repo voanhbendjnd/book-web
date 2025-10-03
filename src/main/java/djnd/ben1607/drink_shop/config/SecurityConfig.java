@@ -47,6 +47,7 @@ public class SecurityConfig {
 
         String[] whiteList = {
                 "/",
+                "/api/v1/auth/**",
                 "/api/v1/auth/login",
                 "/api/v1/auth/refresh",
                 "/api/v1/auth/register",
@@ -64,7 +65,6 @@ public class SecurityConfig {
         };
         http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource))
-
                 .csrf(c -> c.disable()) // co che bao ve
                 .authorizeHttpRequests(
                         authz -> authz
@@ -74,19 +74,18 @@ public class SecurityConfig {
                                 .requestMatchers(HttpMethod.POST, "/auth/register").permitAll()
                                 .requestMatchers(HttpMethod.POST, "/auth/input-otp").permitAll()
                                 .requestMatchers(HttpMethod.GET, "/books").permitAll()
-
+                                .requestMatchers("/oauth2/**", "/login/oauth2/code/**").permitAll()
                                 .requestMatchers(HttpMethod.POST, "/auth/forget-password").permitAll()
                                 .anyRequest().authenticated() // tất cả request khác không có thì buộc phải có qua
                                                               // authentication
 
                 )
-                // protected endpoint
-
                 // tách bearer token
                 .oauth2ResourceServer((oauth2) -> oauth2.jwt(Customizer.withDefaults())
                         .authenticationEntryPoint(customAuthenticationEntryPoint))
                 .formLogin(f -> f.disable()) // xoa form login
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+
         return http.build();
 
     }
