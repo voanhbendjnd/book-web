@@ -37,6 +37,7 @@ public class OrderHistory {
     public static class Detail {
         private String bookName;
         private int quantity;
+        private String coverImage;
         private Long id;
     }
 }

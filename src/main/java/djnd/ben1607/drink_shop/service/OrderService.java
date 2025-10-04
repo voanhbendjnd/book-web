@@ -121,6 +121,7 @@ public class OrderService {
                 detail.setBookName(y.getBook().getTitle());
                 detail.setId(y.getBook().getId());
                 detail.setQuantity(y.getQuantity());
+                detail.setCoverImage(y.getBook().getCoverImage());
                 details.add(detail);
             }
             his.setDetails(details);
