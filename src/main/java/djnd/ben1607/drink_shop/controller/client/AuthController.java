@@ -303,27 +303,28 @@ public class AuthController {
         return ResponseEntity.ok("Update successfull");
     }
 
-    @GetMapping("/auth/test-token")
-    @ApiMessage("Test JWT token creation")
-    public ResponseEntity<Map<String, Object>> testToken() {
-        try {
-            String testEmail = "test@example.com";
-            String token = this.securityUtils.createSimpleToken(testEmail);
-            
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", true);
-            response.put("email", testEmail);
-            response.put("token", token);
-            response.put("message", "JWT token created successfully");
-            
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", false);
-            response.put("error", e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
-        }
-    }
+    // @GetMapping("/auth/test-token")
+    // @ApiMessage("Test JWT token creation")
+    // public ResponseEntity<Map<String, Object>> testToken() {
+    // try {
+    // String testEmail = "test@example.com";
+    // String token = this.securityUtils.createSimpleToken(testEmail);
+
+    // Map<String, Object> response = new HashMap<>();
+    // response.put("success", true);
+    // response.put("email", testEmail);
+    // response.put("token", token);
+    // response.put("message", "JWT token created successfully");
+
+    // return ResponseEntity.ok(response);
+    // } catch (Exception e) {
+    // Map<String, Object> response = new HashMap<>();
+    // response.put("success", false);
+    // response.put("error", e.getMessage());
+    // return
+    // ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+    // }
+    // }
 
     @GetMapping("/auth/test-decode")
     @ApiMessage("Test JWT token decoding")
@@ -333,7 +334,7 @@ public class AuthController {
             response.put("success", true);
             response.put("authentication", authentication != null ? authentication.getName() : "null");
             response.put("message", "JWT token decoded successfully");
-            
+
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             Map<String, Object> response = new HashMap<>();

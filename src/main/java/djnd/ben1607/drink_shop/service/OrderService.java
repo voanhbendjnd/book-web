@@ -98,16 +98,54 @@ public class OrderService {
     }
 
     // xem đơn hàng
-    public List<OrderHistory> watchHistory() throws EillegalStateException {
-        var user = this.userRepository.findByEmail(
-                SecurityUtils.getCurrentUserLogin().orElseThrow(() -> new EillegalStateException("User not found")));
-        var orders = user.getOrders();
+    public ResultPaginationDTO watchHistory(Specification<Order> spec, Pageable pageable)
+            throws EillegalStateException {
+
+        // 1. XÁC THỰC VÀ LẤY THÔNG TIN USER (Đảm bảo bảo mật)
+        String email = SecurityUtils.getCurrentUserLogin()
+                .orElseThrow(() -> new EillegalStateException("User not found: Not authenticated"));
+
+        // Lấy đối tượng User. Nên dùng Optional trong Repository để xử lý lỗi an toàn
+        // hơn
+        User user = this.userRepository.findByEmail(email);
+
+        // 2. TẠO SPECIFICATION BẮT BUỘC (Lọc theo User ID)
+        // Điều kiện này đảm bảo người dùng chỉ xem được đơn hàng của chính họ
+        Specification<Order> userFilter = (root, query, criteriaBuilder) ->
+        // Giả định Entity Order có trường 'user' (many-to-one)
+        criteriaBuilder.equal(root.get("user"), user);
+
+        // 3. KẾT HỢP SPECIFICATION (Lọc ban đầu + Lọc theo User)
+        // combinedSpec = (Lọc từ URL/Controller AND Lọc bắt buộc theo UserID)
+        // Specification<Order> combinedSpec = spec.and(userFilter);
+        // var status = "PENDING";
+        // Specification<Order> testSepeSpecification = (r, q, c)-> {
+        // var p1 = c.equal(r.get("status"), status);
+        // var p2 = c.equal(r.get("user"), user);
+        // return c.and(p1,p2);
+        // };
+        // 4. THỰC HIỆN TRUY VẤN (Đã lọc, đã phân trang và đã bảo mật)
+        // Dữ liệu trong 'page' bây giờ là danh sách các đơn hàng đã được lọc, phân
+        // trang VÀ thuộc về user
+        Page<Order> page = this.orderRepository.findAll(spec.and(userFilter), pageable);
+
+        // 5. CHUẨN BỊ METADATA PHÂN TRANG
+        var mt = new ResultPaginationDTO.Meta();
+        mt.setPage(pageable.getPageNumber() + 1);
+        mt.setPageSize(pageable.getPageSize());
+        mt.setPages(page.getTotalPages());
+        mt.setTotal(page.getTotalElements());
+
+        // 6. MAPPING KẾT QUẢ TỪ Page (page.getContent()) SANG DTO
         var hisList = new ArrayList<OrderHistory>();
-        for (var x : orders) {
+        // Lặp qua KẾT QUẢ ĐÃ LỌC VÀ PHÂN TRANG
+        for (var x : page.getContent()) {
             var his = new OrderHistory();
+
+            // --- Mapping Order History ---
             his.setId(x.getId());
             his.setCreatedAt(x.getOrderCreateDate());
-            his.setEmail(user.getEmail());
+            his.setEmail(user.getEmail()); // Lấy từ user đang đăng nhập
             his.setName(x.getName());
             his.setPhone(x.getPhone());
             his.setTotalAmount(x.getTotalAmount());
@@ -115,19 +153,30 @@ public class OrderService {
             his.setUpdatedAt(x.getOrderUpdateDate());
             his.setStatus(x.getStatus());
             his.setUserId(user.getId());
+
+            // --- Mapping Order Details ---
             var details = new ArrayList<OrderHistory.Detail>();
+            // Cần đảm bảo orderItems được fetch để tránh lỗi N+1
             for (var y : x.getOrderItems()) {
                 var detail = new OrderHistory.Detail();
-                detail.setBookName(y.getBook().getTitle());
-                detail.setId(y.getBook().getId());
+                // Cần kiểm tra y.getBook() có null không nếu mối quan hệ là Lazy loading
+                if (y.getBook() != null) {
+                    detail.setBookName(y.getBook().getTitle());
+                    detail.setId(y.getBook().getId());
+                    detail.setCoverImage(y.getBook().getCoverImage());
+                }
                 detail.setQuantity(y.getQuantity());
-                detail.setCoverImage(y.getBook().getCoverImage());
                 details.add(detail);
             }
             his.setDetails(details);
             hisList.add(his);
         }
-        return hisList;
+
+        // 7. TRẢ VỀ KẾT QUẢ
+        ResultPaginationDTO res = new ResultPaginationDTO();
+        res.setMeta(mt);
+        res.setResult(hisList);
+        return res;
     }
 
     // checkout
