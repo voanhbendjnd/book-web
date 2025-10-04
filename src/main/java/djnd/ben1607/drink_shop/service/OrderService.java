@@ -76,6 +76,7 @@ public class OrderService {
                 orderItem.setBook(book);
                 orderItem.setQuantity(x.quantity());
                 orderItem.setOrder(order);
+                orderItem.setPrice(x.price());
                 orderItems.add(orderItem);
 
             }
@@ -104,6 +105,7 @@ public class OrderService {
         var hisList = new ArrayList<OrderHistory>();
         for (var x : orders) {
             var his = new OrderHistory();
+            his.setId(x.getId());
             his.setCreatedAt(x.getOrderCreateDate());
             his.setEmail(user.getEmail());
             his.setName(x.getName());
@@ -111,12 +113,13 @@ public class OrderService {
             his.setTotalAmount(x.getTotalAmount());
             his.setType(x.getPaymentMethod());
             his.setUpdatedAt(x.getOrderUpdateDate());
+            his.setStatus(x.getStatus());
             his.setUserId(user.getId());
             var details = new ArrayList<OrderHistory.Detail>();
             for (var y : x.getOrderItems()) {
                 var detail = new OrderHistory.Detail();
                 detail.setBookName(y.getBook().getTitle());
-                detail.setId(y.getId());
+                detail.setId(y.getBook().getId());
                 detail.setQuantity(y.getQuantity());
                 details.add(detail);
             }

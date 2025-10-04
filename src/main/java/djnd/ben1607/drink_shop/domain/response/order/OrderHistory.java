@@ -3,6 +3,7 @@ package djnd.ben1607.drink_shop.domain.response.order;
 import java.time.Instant;
 import java.util.List;
 
+import djnd.ben1607.drink_shop.utils.constant.OrderStatusEnum;
 import djnd.ben1607.drink_shop.utils.constant.PaymentMethodEnum;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -23,6 +24,7 @@ public class OrderHistory {
     String email;
     String phone;
     Long userId;
+    OrderStatusEnum status;
     double totalAmount;
     Instant createdAt;
     Instant updatedAt;
