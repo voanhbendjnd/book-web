@@ -269,5 +269,26 @@ public class OrderService {
         return res;
     }
 
-    // Nhận yêu cầu thanh toán
+    public void handleOrderStatus(Long id, String strStatus) throws EillegalStateException {
+        var order = this.orderRepository.findById(id).orElseThrow(() -> new EillegalStateException("Order not found"));
+        switch (strStatus) {
+            case "CANCELED":
+                order.setStatus(OrderStatusEnum.CANCELED);
+                break;
+            case "SHIPPED":
+                order.setStatus(OrderStatusEnum.SHIPPED);
+                break;
+            case "DELIVERED":
+                order.setStatus(OrderStatusEnum.DELIVERED);
+                break;
+            case "FAILED":
+                order.setStatus(OrderStatusEnum.FAILED);
+                break;
+            default:
+                break;
+        }
+
+        this.orderRepository.save(order);
+    }
+
 }

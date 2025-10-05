@@ -10,6 +10,7 @@ public class OrderConvert {
         res.setCreatedAt(order.getOrderCreateDate());
         res.setId(order.getId());
         res.setName(order.getName());
+        res.setStatus(order.getStatus());
         res.setTotalAmount(order.getTotalAmount());
         return res;
     }

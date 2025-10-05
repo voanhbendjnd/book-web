@@ -5,6 +5,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -17,6 +18,7 @@ import com.turkraft.springfilter.boot.Filter;
 import djnd.ben1607.drink_shop.domain.entity.Order;
 import djnd.ben1607.drink_shop.domain.request.OrderDTO;
 import djnd.ben1607.drink_shop.domain.request.RequestOrder;
+import djnd.ben1607.drink_shop.domain.request.StatusDTO;
 import djnd.ben1607.drink_shop.domain.response.ResultPaginationDTO;
 import djnd.ben1607.drink_shop.domain.response.order.ResOrder;
 import djnd.ben1607.drink_shop.service.OrderService;
@@ -97,6 +99,14 @@ public class OrderController {
         // BƯỚC 3: Gọi Service với Specification đã kết hợp
         // --------------------------------------------------------
         return ResponseEntity.ok(this.orderService.watchHistory(combinedSpec, pageable));
+    }
+
+    @PatchMapping("/orders/{id}")
+    @ApiMessage("Update order status")
+    public ResponseEntity<?> updateStatusOrder(@PathVariable("id") Long id, @RequestBody StatusDTO dto)
+            throws EillegalStateException {
+        this.orderService.handleOrderStatus(id, dto.status());
+        return ResponseEntity.ok("Update order status success");
     }
 
     // @GetMapping("/orders/history/filter")

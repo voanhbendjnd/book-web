@@ -16,7 +16,7 @@ public class CorsConfig {
                 configuration.setAllowedOrigins(Arrays.asList(
                                 "http://localhost:3000", "http://localhost:4173", "http://localhost:5173"));
                 configuration.setAllowedMethods(Arrays.asList(
-                                "GET", "POST", "PUT", "DELETE", "OPTIONS")); // Allowed methods
+                                "GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH")); // Allowed methods
                 configuration.setAllowedHeaders(Arrays.asList(
                                 "Authorization", "Content-Type", "Accept", "x-no-retry", "delay"));
                 configuration.setAllowCredentials(true);
