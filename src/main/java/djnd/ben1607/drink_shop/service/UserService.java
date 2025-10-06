@@ -196,20 +196,28 @@ public class UserService {
     // tên cache luôn trên ram
     @Cacheable("userAccount")
     public ResLoginDTO.UserGetAccount getAccount() throws EillegalStateException {
-        User user = this.userRepository.findByEmail(
-                SecurityUtils.getCurrentUserLogin().orElseThrow(() -> new EillegalStateException("User not found")));
-        ResLoginDTO.UserGetAccount res = new ResLoginDTO.UserGetAccount();
-        ResLoginDTO.UserLogin userLogin = new ResLoginDTO.UserLogin();
-        userLogin.setId(user.getId());
-        userLogin.setEmail(user.getEmail());
-        userLogin.setAddress(user.getAddress());
-        userLogin.setAvatar(user.getAvatar());
-        userLogin.setName(user.getName());
-        userLogin.setPhone(user.getPhone());
-        userLogin.setRole(user.getRole().getName());
-        userLogin.setGender(user.getGender());
-        res.setUser(userLogin);
-        return res;
+        String email = SecurityUtils.getCurrentUserLogin()
+                .orElseThrow(() -> new EillegalStateException("User not found"));
+        if (email.isBlank() || email.isEmpty()) {
+            throw new EillegalStateException("User not found");
+        }
+        User user = this.userRepository.findByEmail(email);
+        if (user != null) {
+            ResLoginDTO.UserGetAccount res = new ResLoginDTO.UserGetAccount();
+            ResLoginDTO.UserLogin userLogin = new ResLoginDTO.UserLogin();
+            userLogin.setId(user.getId());
+            userLogin.setEmail(user.getEmail());
+            userLogin.setAddress(user.getAddress());
+            userLogin.setAvatar(user.getAvatar());
+            userLogin.setName(user.getName());
+            userLogin.setPhone(user.getPhone());
+            userLogin.setRole(user.getRole().getName());
+            userLogin.setGender(user.getGender());
+            res.setUser(userLogin);
+            return res;
+        }
+        throw new EillegalStateException("User not found");
+
     }
 
     @CacheEvict(value = "userAccount", allEntries = true)
