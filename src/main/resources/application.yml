@@ -1,0 +1,85 @@
+spring:
+  application:
+    name: drink_shop
+
+  # Database Configuration
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/drinkwebShop
+    username: root
+    password: 1607
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  # File Upload Configuration
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 50MB
+
+  # Email Configuration (Gmail)
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: voanhbendjnd@gmail.com
+    password: qrywyweqefmjrqqc
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+  # Web Configuration
+  data:
+    web:
+      pageable:
+        one-indexed-parameters: true
+
+  # Console Output
+  output:
+    ansi:
+      enabled: ALWAYS
+
+# Server Configuration
+server:
+  port: 8080
+
+# Custom Application Properties
+djnd:
+  upload-file:
+    base-uri: C:/Users/PC/Documents/Backend/Project/upload/
+  jwt:
+    base64-secret: nE6Od1T/x2GDldpDXhd9uaXfQupvYU7fCgO4IXPG3B2on76ZvM9hmGT7CR4sOPZmVu8R7u4+Uwy9Zik+fOwq9A==
+    access-token-validity-in-seconds: 86400000
+    refresh-token-validity-in-seconds: 86400000
+
+# Logging Configuration
+logging:
+  level:
+    root: INFO
+    djnd.ben1607.drink_shop: DEBUG
+    org.springframework.security: DEBUG
+    org.springframework.web: INFO
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+    org.springframework.data.jpa: DEBUG
+
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+
+  file:
+    name: C:/Users/PC/Documents/Backend/Project/logging/book-shop.log
+    max-size: 10MB
+    max-history: 30
+    total-size-cap: 1GB
+
+  logback:
+    rollingpolicy:
+      clean-history-on-start: true
+# Debug Mode (uncomment to enable)
+# debug: true

@@ -5,6 +5,11 @@ plugins {
     id("io.freefair.lombok") version "8.12.1"
 }
 
+// Cấu hình cho Spring Boot Dashboard
+tasks.bootJar {
+	mainClass = "djnd.ben1607.drink_shop.DrinkShopApplication"
+}
+
 group = "com.djnd"
 version = "0.0.1-SNAPSHOT"
 
@@ -13,6 +18,7 @@ java {
 		languageVersion = JavaLanguageVersion.of(21)
 	}
 }
+
 
 repositories {
 	mavenCentral()
