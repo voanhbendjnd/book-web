@@ -19,7 +19,6 @@ import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
-import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfigurationSource;
 
@@ -42,7 +41,7 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http,
-            CustomAuthenticationEntryPoint customAuthenticationEntryPoint,
+            SmartAuthenticationEntryPoint smartAuthenticationEntryPoint,
             @Qualifier("corsConfigurationSource") CorsConfigurationSource corsConfigurationSource) throws Exception {
 
         String[] whiteList = {
@@ -57,11 +56,11 @@ public class SecurityConfig {
                 "/v3/api-docs/**",
                 "/swagger-ui/**",
                 "/swagger-ui.html",
-                "/api/v1/users/**",
                 "/storage/**",
                 "/api/v1/images/**",
+                // PUBLIC APIs - Không cần authentication
                 "/api/v1/books/**",
-                "/api/v1/categories"
+                "/api/v1/categories/**"
         };
         http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource))
@@ -82,7 +81,7 @@ public class SecurityConfig {
                 )
                 // tách bearer token
                 .oauth2ResourceServer((oauth2) -> oauth2.jwt(Customizer.withDefaults())
-                        .authenticationEntryPoint(customAuthenticationEntryPoint))
+                        .authenticationEntryPoint(smartAuthenticationEntryPoint))
                 .formLogin(f -> f.disable()) // xoa form login
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
@@ -108,14 +107,17 @@ public class SecurityConfig {
 
     }
 
-    // phân quyền cho permision
+    // Phân quyền cho permission với Single Session validation
     @Bean
-    public JwtAuthenticationConverter jwtAuthenticationConverter() {
-        JwtGrantedAuthoritiesConverter grantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
-        grantedAuthoritiesConverter.setAuthorityPrefix("");
-        grantedAuthoritiesConverter.setAuthoritiesClaimName("permission"); // create accesstoken
+    public JwtAuthenticationConverter jwtAuthenticationConverter(CustomJwtAuthenticationConverter customConverter) {
+        // Cấu hình CustomJwtAuthenticationConverter để validate session
+        customConverter.setAuthorityPrefix(""); // Không có prefix cho authorities
+        customConverter.setAuthoritiesClaimName("permission"); // Tên claim chứa permissions trong JWT
+
+        // Tạo JWT Authentication Converter với custom converter
         JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
-        jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(grantedAuthoritiesConverter);
+        jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(customConverter);
+
         return jwtAuthenticationConverter;
     }
 

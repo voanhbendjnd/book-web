@@ -52,6 +52,9 @@ public class User {
     private GenderEnum gender;
     @Column(columnDefinition = "MEDIUMTEXT")
     private String refreshToken;
+
+    @Column(name = "session_id")
+    private String sessionId;
     @ManyToOne
     @JoinColumn(name = "role_id")
     @JsonIgnore

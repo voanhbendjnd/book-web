@@ -32,6 +32,7 @@ import djnd.ben1607.drink_shop.domain.response.ResLoginDTO;
 import djnd.ben1607.drink_shop.domain.response.user.ResCreateUser;
 import djnd.ben1607.drink_shop.repository.UserRepository;
 import djnd.ben1607.drink_shop.service.EmailService;
+import djnd.ben1607.drink_shop.service.SessionManager;
 import djnd.ben1607.drink_shop.service.UserService;
 import djnd.ben1607.drink_shop.utils.SecurityUtils;
 import djnd.ben1607.drink_shop.utils.annotation.ApiMessage;
@@ -48,6 +49,7 @@ public class AuthController {
     private final AuthenticationManagerBuilder builder;
     private final EmailService emailService;
     private final UserRepository userRepository;
+    private final SessionManager sessionManager;
     @Value("${djnd.jwt.access-token-validity-in-seconds}")
     private Long refreshTokenExpiration;
 
@@ -55,13 +57,16 @@ public class AuthController {
             AuthenticationManagerBuilder builder,
             SecurityUtils securityUtils,
             PasswordEncoder passwordEncoder,
-            EmailService emailService, UserRepository userRepository) {
+            EmailService emailService,
+            UserRepository userRepository,
+            SessionManager sessionManager) {
         this.builder = builder;
         this.emailService = emailService;
         this.securityUtils = securityUtils;
         this.userService = userService;
         this.passwordEncoder = passwordEncoder;
         this.userRepository = userRepository;
+        this.sessionManager = sessionManager;
     }
 
     @PostMapping("/auth/login")
@@ -80,8 +85,17 @@ public class AuthController {
                     user.getRole().getName(), user.getGender());
             res.setUser(userLogin);
         }
-        // -> create token <-
-        String accessToken = this.securityUtils.createAccessToken(authentication.getName(), res);
+
+        // ===== SINGLE SESSION LOGIC =====
+        // BƯỚC 1: Invalidate session cũ (nếu có) để đảm bảo chỉ 1 session active
+        this.sessionManager.invalidateExistingSession(dto.getUsername());
+
+        // BƯỚC 2: Tạo session mới cho user này
+        String newSessionId = this.sessionManager.createNewSession(user);
+
+        // BƯỚC 3: Tạo access token với sessionId mới
+        // SessionId này sẽ được validate trong CustomJwtAuthenticationConverter
+        String accessToken = this.securityUtils.createAccessToken(authentication.getName(), res, newSessionId);
         res.setAccessToken(accessToken);
 
         // -> create refresh token <-
@@ -121,8 +135,12 @@ public class AuthController {
                 user.getAvatar(), user.getAddress(), user.getPhone(),
                 user.getRole().getName(), user.getGender());
         res.setUser(userLogin);
-        // -> create token <-
-        String accessToken = this.securityUtils.createAccessToken(email, res);
+        // ===== SINGLE SESSION LOGIC CHO REFRESH TOKEN =====
+        // Tạo session mới cho refresh token (cũng invalidate session cũ)
+        String newSessionId = this.sessionManager.createNewSession(user);
+
+        // Tạo access token mới với sessionId mới
+        String accessToken = this.securityUtils.createAccessToken(email, res, newSessionId);
         res.setAccessToken(accessToken);
 
         // -> create refresh token <-
@@ -157,7 +175,9 @@ public class AuthController {
         if (user == null) {
             throw new IdInvalidException(">>> Wrong refresh token! <<<");
         }
+        // ===== SINGLE SESSION LOGIC CHO LOGOUT =====
         user.setRefreshToken(null);
+        this.sessionManager.invalidateSession(email); // Invalidate session trong database
         this.userService.updateUser(user);
         return ResponseEntity.ok(null);
     }
@@ -170,7 +190,9 @@ public class AuthController {
         if (email.equals("")) {
             throw new IdInvalidException(">>> Access token wrong! <<<");
         }
+        // ===== SINGLE SESSION LOGIC CHO LOGOUT =====
         this.userService.logoutAccount();
+        this.sessionManager.invalidateSession(email); // Invalidate session trong database
         ResponseCookie formDeleteCookie = ResponseCookie
                 .from("refresh_token", "")
                 .httpOnly(true)

@@ -71,8 +71,14 @@ public class SecurityUtils {
         }
     }
 
-    // @PreAuthorize("hasAuthority('VIEW_BOOK')")
-    public String createAccessToken(String email, ResLoginDTO dto) {
+    /**
+     * Tạo Access Token với sessionId cho Single Session feature
+     * 
+     * QUAN TRỌNG: Method này đã được cập nhật để include sessionId
+     * - sessionId sẽ được validate trong CustomJwtAuthenticationConverter
+     * - Nếu sessionId không khớp với database → 401 response
+     */
+    public String createAccessToken(String email, ResLoginDTO dto, String sessionId) {
         ResLoginDTO.UserInsideToken userToken = new ResLoginDTO.UserInsideToken();
         userToken.setId(dto.getUser().getId());
         userToken.setEmail(dto.getUser().getEmail());
@@ -95,6 +101,7 @@ public class SecurityUtils {
                 .subject(email) // save email by user to token
                 .claim("user", userToken) // save information user to token
                 .claim("permission", listAuthority) // sava list permission to token
+                .claim("sessionId", sessionId) // QUAN TRỌNG: Lưu sessionId vào JWT để validate Single Session
                 .build();
         // chứa thông tin thuật toán
         JwsHeader jwsHeader = JwsHeader.with(JWT_ALGORITHM).build();
@@ -146,6 +153,24 @@ public class SecurityUtils {
         return Optional.ofNullable(securityContext.getAuthentication())
                 .filter(authentication -> authentication.getCredentials() instanceof String)
                 .map(authentication -> (String) authentication.getCredentials());
+    }
+
+    /**
+     * Lấy session ID từ JWT token hiện tại
+     * 
+     * SINGLE SESSION: Method này để lấy sessionId từ JWT đang được sử dụng
+     * - Dùng để debug hoặc log session info
+     * - SessionId được validate trong CustomJwtAuthenticationConverter
+     * 
+     * @return Session ID nếu có, null nếu không
+     */
+    public static Optional<String> getCurrentSessionId() {
+        SecurityContext securityContext = SecurityContextHolder.getContext();
+        if (securityContext.getAuthentication() != null
+                && securityContext.getAuthentication().getPrincipal() instanceof Jwt jwt) {
+            return Optional.ofNullable(jwt.getClaimAsString("sessionId"));
+        }
+        return Optional.empty();
     }
 
 }
