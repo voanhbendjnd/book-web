@@ -82,5 +82,18 @@ public class CustomJwtAuthenticationConverter implements Converter<Jwt, Collecti
         return authorities.stream()
                 .map(authority -> new SimpleGrantedAuthority(authorityPrefix + authority))
                 .collect(Collectors.toList());
+        // input {
+        // "sub": "user@example.com",
+        // "sessionId": "abc123-def456",
+        // "permission": [
+        // "ROLE_USER_CREATE",
+        // "ROLE_BOOK_VIEW"
+        // ]
+        // output
+        // }
+        // Collection<GrantedAuthority> authorities = [
+        // SimpleGrantedAuthority("ROLE_USER_CREATE"),
+        // SimpleGrantedAuthority("ROLE_BOOK_VIEW")
+        // ]
     }
 }

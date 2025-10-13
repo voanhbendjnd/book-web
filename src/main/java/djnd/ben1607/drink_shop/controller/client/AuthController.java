@@ -87,10 +87,7 @@ public class AuthController {
         }
 
         // ===== SINGLE SESSION LOGIC =====
-        // BƯỚC 1: Invalidate session cũ (nếu có) để đảm bảo chỉ 1 session active
-        this.sessionManager.invalidateExistingSession(dto.getUsername());
-
-        // BƯỚC 2: Tạo session mới cho user này
+        // Tạo session mới cho user này (tự động đè lên session cũ)
         String newSessionId = this.sessionManager.createNewSession(user);
 
         // BƯỚC 3: Tạo access token với sessionId mới

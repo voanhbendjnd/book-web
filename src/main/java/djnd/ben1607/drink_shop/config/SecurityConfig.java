@@ -63,8 +63,8 @@ public class SecurityConfig {
                 "/api/v1/categories/**"
         };
         http
-                .cors(cors -> cors.configurationSource(corsConfigurationSource))
-                .csrf(c -> c.disable()) // co che bao ve
+                .cors(cors -> cors.configurationSource(corsConfigurationSource)) // cors
+                .csrf(c -> c.disable()) // co che bao ve (tắt csrf vì sử dụng jwt token)
                 .authorizeHttpRequests(
                         authz -> authz
                                 .requestMatchers(whiteList)
@@ -80,6 +80,7 @@ public class SecurityConfig {
 
                 )
                 // tách bearer token
+                // cấu hình jwt
                 .oauth2ResourceServer((oauth2) -> oauth2.jwt(Customizer.withDefaults())
                         .authenticationEntryPoint(smartAuthenticationEntryPoint))
                 .formLogin(f -> f.disable()) // xoa form login

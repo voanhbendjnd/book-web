@@ -25,11 +25,12 @@ public class SessionManager {
     }
 
     /**
-     * Tạo session ID mới cho user và invalidate session cũ nếu có
+     * Tạo session ID mới cho user
      * 
      * QUAN TRỌNG: Đây là method được gọi khi user login
      * - Tạo UUID mới làm sessionId
-     * - Lưu vào database → session cũ tự động bị invalidate
+     * - Lưu vào database → tự động đè lên session cũ (nếu có)
+     * - Đảm bảo chỉ có 1 session active tại một thời điểm
      * 
      * @param user User cần tạo session mới
      * @return Session ID mới (UUID string)
@@ -86,21 +87,4 @@ public class SessionManager {
         }
     }
 
-    /**
-     * Invalidate tất cả session của user trước khi tạo session mới
-     * 
-     * Được gọi khi user login từ nơi khác
-     * - Invalidate session cũ trước khi tạo session mới
-     * - Đảm bảo chỉ có 1 session active tại một thời điểm
-     * 
-     * @param email Email của user
-     */
-    public void invalidateExistingSession(String email) {
-        User user = userRepository.findByEmail(email);
-        if (user != null) {
-            // Set sessionId = null để invalidate session cũ
-            user.setSessionId(null);
-            userRepository.save(user);
-        }
-    }
 }
