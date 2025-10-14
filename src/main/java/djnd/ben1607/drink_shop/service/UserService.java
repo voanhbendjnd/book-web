@@ -73,6 +73,7 @@ public class UserService {
         return this.userRepository.findByEmailAndRefreshToken(email, refreshToken);
     }
 
+    @CacheEvict(value = "users", key = "#email")
     public void updateUserToken(String token, String email) {
         User user = this.userRepository.findByEmail(email);
         if (user != null) {
@@ -84,6 +85,7 @@ public class UserService {
         }
     }
 
+    @CacheEvict(value = "users", allEntries = true)
     public ResCreateUser createNewUser(CreateAccountDTO user) throws EillegalStateException {
         var role = this.roleRepository.findByName("USER");
         if (role != null) {
@@ -164,11 +166,13 @@ public class UserService {
         return this.userRepository.existsByEmail(email);
     }
 
+    @CacheEvict(value = "users", key = "#user.email")
     public void deleteUserByID(Long id) throws EillegalStateException {
         User user = this.userRepository.findById(id)
                 .orElseThrow(() -> new EillegalStateException("User with ID (" + id + ")not found"));
         user.setActive(false);
         this.userRepository.save(user);
+        // ✅ Xóa cache dựa trên email của user đã xóa
     }
 
     public ResultPaginationDTO fetchAllUser(Specification<User> spec, Pageable pageable) {

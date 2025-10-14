@@ -3,6 +3,8 @@ package djnd.ben1607.drink_shop.service;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -32,6 +34,7 @@ public class PermissionService {
         return this.permissionRepository.existsPermissionByApiPathAndMethod(api, method);
     }
 
+    @Cacheable(value = "permissions", key = "#ids")
     public List<Permission> fetchPermissionByIdIn(List<Long> ids) {
         return this.permissionRepository.findByIdIn(ids) != null ? this.permissionRepository.findByIdIn(ids) : null;
     }
@@ -41,6 +44,7 @@ public class PermissionService {
         return ConvertModulePermisson.createTran(lastPer);
     }
 
+    @CacheEvict(value = "permissions", key = "#per.id")
     public ResUpdatePermission updatePermission(Permission per) {
         Permission perDB = this.permissionRepository.findById(per.getId()).get();
         ChangeUpdate.handle(per, perDB);
@@ -48,21 +52,23 @@ public class PermissionService {
         return ConvertModulePermisson.updateTran(lastPer);
     }
 
+    @Cacheable(value = "permissions", key = "#id")
     public Permission fetchPermissionByID(Long id) {
         return this.permissionRepository.findById(id).get();
     }
 
+    @CacheEvict(value = "permissions", key = "#id")
     public void deletePermissionByID(Long id) {
         Optional<Permission> permissionOptional = this.permissionRepository.findById(id);
-        if(permissionOptional.isPresent()){
+        if (permissionOptional.isPresent()) {
             permissionOptional.get().getRoles()
                     .forEach(x -> x.getPermissions().remove(permissionOptional.get()));
             this.permissionRepository.delete(permissionOptional.get());
         }
-      
 
     }
 
+    @Cacheable(value = "permissions", key = "#spec + '_' + #pageable")
     public ResultPaginationDTO fetchAllPermission(Specification<Permission> spec, Pageable pageable) {
         ResultPaginationDTO res = new ResultPaginationDTO();
         ResultPaginationDTO.Meta mt = new ResultPaginationDTO.Meta();

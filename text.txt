@@ -46,3 +46,37 @@ Cart		400	Cart error
 Business Logic		400	Business error
 Database		409	Constraint violation
 Type Mismatch		400	Parameter type erro
+
+
+ SECURITY HEADERS EXPLAINED:
+1. X-Frame-Options: DENY
+Bảo vệ: Clickjacking attacks
+Ý nghĩa: Ngăn website bị embed trong iframe
+2. X-Content-Type-Options: nosniff
+Bảo vệ: MIME type sniffing attacks
+Ý nghĩa: Browser không đoán content type
+3. X-XSS-Protection: 1; mode=block
+Bảo vệ: Cross-Site Scripting (XSS)
+Ý nghĩa: Block page load nếu detect XSS
+4. Content-Security-Policy
+Bảo vệ: XSS, injection attacks
+Ý nghĩa: Chỉ cho phép resources từ same origin
+5. Strict-Transport-Security
+Bảo vệ: Man-in-the-middle attacks
+Ý nghĩa: Force HTTPS connections
+6. Referrer-Policy
+Bảo vệ: Information disclosure
+Ý nghĩa: Kiểm soát thông tin referrer
+🚀 RATE LIMITING RULES:
+Rate Limits Applied:
+Protection Against:
+Brute Force Attacks: Login attempts limited
+DoS Attacks: Request rate limited
+API Abuse: Per-endpoint limits
+Bot Attacks: IP-based tracking
+
+security impovement
+✅ Auth Endpoints: 60 requests/minute, 1000/hour
+✅ Login Endpoints: 5 attempts/15 minutes
+✅ Admin Endpoints: 60 requests/minute
+✅ All APIs: Basic rate limiting

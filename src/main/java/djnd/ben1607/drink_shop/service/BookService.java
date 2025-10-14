@@ -6,8 +6,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -55,6 +55,7 @@ public class BookService {
         return this.bookRepository.existsById(id);
     }
 
+    @CacheEvict(value = "books", allEntries = true)
     public ResCreateBook createBasic(BookDTO dto) {
         // 🚀 Sử dụng MapStruct thay vì manual mapping
         Book book = bookMapper.toBook(dto);
@@ -80,6 +81,7 @@ public class BookService {
         return bookMapper.toResCreateBook(savedBook);
     }
 
+    @CacheEvict(value = "books", allEntries = true)
     public ResCreateBook createMultipart(BookDTO dto, List<MultipartFile> files, MultipartFile file)
             throws URISyntaxException, IOException {
         // 🚀 Sử dụng MapStruct thay vì manual mapping
@@ -123,6 +125,7 @@ public class BookService {
         return bookMapper.toResCreateBook(savedBook);
     }
 
+    @CacheEvict(value = "books", key = "#dto.id")
     public ResUpdateBook updateMutilpart(BookDTO dto, List<MultipartFile> files, MultipartFile file)
             throws URISyntaxException, IOException {
         // Business logic: Set all books to active (existing logic)
@@ -178,6 +181,7 @@ public class BookService {
         return null;
     }
 
+    @CacheEvict(value = "books", allEntries = true)
     public ResCreateBook create(BookDTO dto, MultipartFile file) throws URISyntaxException, IOException {
         // 🚀 Sử dụng MapStruct thay vì manual mapping
         Book book = bookMapper.toBook(dto);
@@ -208,6 +212,7 @@ public class BookService {
         return bookMapper.toResCreateBook(savedBook);
     }
 
+    @CacheEvict(value = "books", key = "#dto.id")
     public ResUpdateBook update(BookDTO dto) throws URISyntaxException, IOException {
         Book bookDB = this.bookRepository.findById(dto.getId()).get();
         if (bookDB != null) {

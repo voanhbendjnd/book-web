@@ -3,6 +3,8 @@ package djnd.ben1607.drink_shop.service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -30,6 +32,7 @@ public class CategoryService {
         this.bookRepository = bookRepository;
     }
 
+    @Cacheable(value = "categories", key = "#ids")
     public List<Category> findByIdIn(List<Long> ids) {
         List<Category> categories = this.categoryRepository.findByIdIn(ids);
         return categories != null ? categories : null;
@@ -48,6 +51,7 @@ public class CategoryService {
         return ConvertModuleCategory.create(this.categoryRepository.save(cate));
     }
 
+    @CacheEvict(value = "categories", key = "#dto.id")
     public ResUpdateCategory update(CategoryDTO dto) {
         Category cateDB = this.categoryRepository.findById(dto.getId()).get();
         if (cateDB != null) {
@@ -66,16 +70,19 @@ public class CategoryService {
         return null;
     }
 
+    @Cacheable(value = "categories", key = "#id")
     public ResCategory fetchById(Long id) {
         return ConvertModuleCategory.fetch(this.categoryRepository.findById(id).get());
     }
 
+    @CacheEvict(value = "categories", key = "#id")
     public void deleteById(Long id) {
         Category cateDB = this.categoryRepository.findById(id).get();
         cateDB.getBooks().forEach(x -> x.getCategories().remove(cateDB));
         this.categoryRepository.delete(cateDB);
     }
 
+    @Cacheable(value = "categories", key = "#spec + '_' + #pageable")
     public ResultPaginationDTO fetchAll(Specification<Category> spec, Pageable pageable) {
         ResultPaginationDTO res = new ResultPaginationDTO();
         ResultPaginationDTO.Meta mt = new ResultPaginationDTO.Meta();

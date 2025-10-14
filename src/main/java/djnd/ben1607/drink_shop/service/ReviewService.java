@@ -4,6 +4,8 @@ import java.time.Instant;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -38,6 +40,7 @@ public class ReviewService {
         this.userRepository = userRepository;
     }
 
+    @CacheEvict(value = "reviews", key = "#dto.bookId")
     public ResCreateReview create(ReviewDTO dto) throws IdInvalidException {
         Book book = this.bookRepository.findById(dto.getBookId()).get();
         if (book == null) {
@@ -53,6 +56,7 @@ public class ReviewService {
         return ConvertModuleReview.create(this.reviewRepository.save(review));
     }
 
+    @CacheEvict(value = "reviews", key = "#dto.id")
     public ResUpdateReview update(ReviewDTO dto) throws IdInvalidException {
         Review reviewDB = this.reviewRepository.findById(dto.getId()).get();
         Review review = new Review();
@@ -62,14 +66,17 @@ public class ReviewService {
         return ConvertModuleReview.update(this.reviewRepository.save(reviewDB));
     }
 
+    @Cacheable(value = "reviews", key = "#id")
     public ResReview fetchById(Long id) throws IdInvalidException {
         return ConvertModuleReview.fetch(this.reviewRepository.findById(id).get());
     }
 
+    @CacheEvict(value = "reviews", key = "#id")
     public void deleteById(Long id) throws IdInvalidException {
         this.reviewRepository.deleteById(id);
     }
 
+    @Cacheable(value = "reviews", key = "#spec + '_' + #pageable")
     public ResultPaginationDTO fetchAll(Specification<Review> spec, Pageable pageable) {
         Page<Review> page = this.reviewRepository.findAll(pageable);
         ResultPaginationDTO res = new ResultPaginationDTO();

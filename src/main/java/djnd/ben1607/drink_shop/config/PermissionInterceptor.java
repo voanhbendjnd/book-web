@@ -3,6 +3,7 @@ package djnd.ben1607.drink_shop.config;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.HandlerMapping;
@@ -35,16 +36,14 @@ public class PermissionInterceptor implements HandlerInterceptor {
                 ? SecurityUtils.getCurrentUserLogin().get()
                 : "";
         if (!email.isEmpty()) {
+            // Optimized: Use cached user lookup + cached permission check
             User user = this.userService.fetchUserByEmail(email);
             if (user != null) {
                 Role role = user.getRole();
                 if (role != null) {
-                    List<Permission> permissions = role.getPermissions();
-                    boolean isAllow = permissions.stream().anyMatch(
-                            permission -> permission.getApiPath().equals(path)
-                                    &&
-                                    permission.getMethod().equals(httpMethod));
-                    if (!isAllow) {
+                    // Check permission using cached method
+                    boolean hasPermission = checkUserPermission(email, path, httpMethod);
+                    if (!hasPermission) {
                         throw new PermissionException("You do not have permission to access this endpoint!!!");
                     }
                 } else {
@@ -54,5 +53,23 @@ public class PermissionInterceptor implements HandlerInterceptor {
         }
 
         return true;
+    }
+
+    /**
+     * Cached permission checking method
+     * Cache key: "permissions::email_path_method"
+     * Example: "permissions::john@email.com_/api/users_GET"
+     */
+    @Cacheable(value = "permissions", key = "#email + '_' + #path + '_' + #method")
+    public boolean checkUserPermission(String email, String path, String method) {
+        User user = this.userService.fetchUserByEmail(email);
+        if (user == null || user.getRole() == null) {
+            return false;
+        }
+
+        List<Permission> permissions = user.getRole().getPermissions();
+        return permissions.stream().anyMatch(
+                permission -> permission.getApiPath().equals(path)
+                        && permission.getMethod().equals(method));
     }
 }

@@ -17,7 +17,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
 import org.springframework.stereotype.Service;
-
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import java.util.Optional;
 
 @Service
@@ -29,6 +30,7 @@ public class CartService {
     UserRepository userRepository;
     BookRepository bookRepository;
 
+    @CacheEvict(value = "carts", key = "#userId")
     public void create(Long userId) {
         Cart cart = new Cart();
         Optional<User> userOptional = this.userRepository.findById(userId);
@@ -36,6 +38,7 @@ public class CartService {
         this.cartRepository.save(cart);
     }
 
+    @CacheEvict(value = "carts", key = "#dto.bookId")
     public void addItemToCart(AddItemDTO dto) throws IdInvalidException {
         // get user
         User user = this.userRepository.findByEmail(
