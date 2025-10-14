@@ -30,6 +30,7 @@ import djnd.ben1607.drink_shop.domain.request.UserUpdate;
 import djnd.ben1607.drink_shop.domain.request.CreateAccountDTO;
 import djnd.ben1607.drink_shop.domain.response.ResLoginDTO;
 import djnd.ben1607.drink_shop.domain.response.user.ResCreateUser;
+import djnd.ben1607.drink_shop.mapper.UserMapper;
 import djnd.ben1607.drink_shop.repository.UserRepository;
 import djnd.ben1607.drink_shop.service.EmailService;
 import djnd.ben1607.drink_shop.service.SessionManager;
@@ -50,6 +51,7 @@ public class AuthController {
     private final EmailService emailService;
     private final UserRepository userRepository;
     private final SessionManager sessionManager;
+    private final UserMapper userMapper;
     @Value("${djnd.jwt.access-token-validity-in-seconds}")
     private Long refreshTokenExpiration;
 
@@ -59,7 +61,8 @@ public class AuthController {
             PasswordEncoder passwordEncoder,
             EmailService emailService,
             UserRepository userRepository,
-            SessionManager sessionManager) {
+            SessionManager sessionManager,
+            UserMapper userMapper) {
         this.builder = builder;
         this.emailService = emailService;
         this.securityUtils = securityUtils;
@@ -67,6 +70,7 @@ public class AuthController {
         this.passwordEncoder = passwordEncoder;
         this.userRepository = userRepository;
         this.sessionManager = sessionManager;
+        this.userMapper = userMapper;
     }
 
     @PostMapping("/auth/login")
@@ -80,9 +84,8 @@ public class AuthController {
         ResLoginDTO res = new ResLoginDTO();
         User user = this.userService.fetchUserByEmail(dto.getUsername());
         if (user != null) {
-            ResLoginDTO.UserLogin userLogin = new ResLoginDTO.UserLogin(user.getId(), user.getEmail(), user.getName(),
-                    user.getAvatar(), user.getAddress(), user.getPhone(),
-                    user.getRole().getName(), user.getGender());
+            // 🚀 Sử dụng MapStruct thay vì manual mapping
+            ResLoginDTO.UserLogin userLogin = this.userMapper.toUserLogin(user);
             res.setUser(userLogin);
         }
 
@@ -128,9 +131,8 @@ public class AuthController {
             throw new IdInvalidException(">>> System error, not find token! <<<");
         }
         ResLoginDTO res = new ResLoginDTO();
-        ResLoginDTO.UserLogin userLogin = new ResLoginDTO.UserLogin(user.getId(), user.getEmail(), user.getName(),
-                user.getAvatar(), user.getAddress(), user.getPhone(),
-                user.getRole().getName(), user.getGender());
+        // 🚀 Sử dụng MapStruct thay vì manual mapping
+        ResLoginDTO.UserLogin userLogin = this.userMapper.toUserLogin(user);
         res.setUser(userLogin);
         // ===== SINGLE SESSION LOGIC CHO REFRESH TOKEN =====
         // Tạo session mới cho refresh token (cũng invalidate session cũ)
@@ -297,7 +299,7 @@ public class AuthController {
     @PostMapping("/auth/register")
     @ApiMessage("Sign in account")
     public ResponseEntity<ResCreateUser> register(@RequestBody @Valid CreateAccountDTO user)
-            throws IdInvalidException {
+            throws IdInvalidException, EillegalStateException {
         if (this.userService.existsByEmail(user.getEmail())) {
             throw new IdInvalidException(">>> Email with " + user.getEmail() + " already exists! <<<");
         }

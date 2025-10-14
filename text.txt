@@ -8,3 +8,20 @@ FE gửi data trong đó có file ảnh sẽ nằm trong FormData, lúc nhận �
 
 @Tractional sẽ lưu những entity có sẳn trong db nếu được lấy ra, ko lưu những entity mới tạo, entity mới tạo phải lưu riêng
 cacashe= All chỉ hoạt động hết khi có Transactional, hiệu quả của nó là khi save One thì many sẽ được động save
+./gradlew clean
+./gradlew compileJava --no-daemon
+./gradlew build --no-daemon
+
+
+1. componentModel = "spring"
+Mục đích: Tạo một Spring Bean từ mapper interface này
+Công dụng: Cho phép MapStruct tự động tạo implementation và đăng ký nó như một Spring Component
+Lợi ích: Có thể inject mapper này vào các Service hoặc Controller khác bằng @Autowired
+2. nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE
+Mục đích: Xử lý các trường có giá trị null
+Công dụng: Khi mapping, nếu source field có giá trị null, thì target field sẽ không bị ghi đè (giữ nguyên giá trị cũ)
+Ví dụ: Khi update user, nếu email trong DTO là null, thì email trong entity sẽ không thay đổi
+3. nullValueCheckStrategy = NullValueCheckStrategy.ON_IMPLICIT_CONVERSION
+Mục đích: Kiểm tra null khi có implicit conversion (chuyển đổi ngầm)
+Công dụng: Đảm bảo an toàn khi MapStruct tự động convert giữa các kiểu dữ liệu khác nhau
+Ví dụ: Khi convert từ String sang Integer, sẽ kiểm tra null trước khi convert

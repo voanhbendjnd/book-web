@@ -25,6 +25,7 @@ import djnd.ben1607.drink_shop.domain.response.ResultPaginationDTO;
 import djnd.ben1607.drink_shop.domain.response.user.ResCreateUser;
 import djnd.ben1607.drink_shop.domain.response.user.ResFetchUser;
 import djnd.ben1607.drink_shop.domain.response.user.ResUpdateUser;
+import djnd.ben1607.drink_shop.mapper.UserMapper;
 import djnd.ben1607.drink_shop.repository.CartRepository;
 import djnd.ben1607.drink_shop.repository.RoleRepository;
 import djnd.ben1607.drink_shop.repository.UserRepository;
@@ -40,6 +41,7 @@ public class UserService {
     private final CartService cartService;
     private final PasswordEncoder passwordEncoder;
     private final CartRepository cartRepository;
+    private final UserMapper userMapper;
     // Logger log = LoggerFactory.getLogger(UserService.class);
 
     public boolean existsById(Long id) {
@@ -51,12 +53,14 @@ public class UserService {
             RoleRepository roleRepository,
             CartService cartService,
             PasswordEncoder passwordEncoder,
-            CartRepository cartRepository) {
+            CartRepository cartRepository,
+            UserMapper userMapper) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.cartService = cartService;
         this.cartRepository = cartRepository;
         this.passwordEncoder = passwordEncoder;
+        this.userMapper = userMapper;
     }
 
     public User fetchUserByEmail(String email) {
@@ -80,36 +84,31 @@ public class UserService {
         }
     }
 
-    public ResCreateUser createNewUser(CreateAccountDTO user) {
-        User userNew = new User();
-        userNew.setRole(this.roleRepository.findByName("USER"));
-        userNew.setAddress(user.getAddress());
-        userNew.setName(user.getName());
-        userNew.setEmail(user.getEmail());
-        userNew.setPassword(user.getPassword());
-        userNew.setGender(user.getGender());
-        userNew.setPhone(user.getPhone());
-        User lastUser = this.userRepository.save(userNew);
-        this.cartService.create(lastUser.getId());
-        // log.info("adding user with email {} successfull", lastUser.getEmail());
-
-        return ConvertModuleUser.createdTran(lastUser);
+    public ResCreateUser createNewUser(CreateAccountDTO user) throws EillegalStateException {
+        var role = this.roleRepository.findByName("USER");
+        if (role != null) {
+            var userNew = this.userMapper.toUser(user);
+            userNew.setRole(role);
+            User lastUser = this.userRepository.save(userNew);
+            this.cartService.create(lastUser.getId());
+            // log.info("adding user with email {} successfull", lastUser.getEmail());
+            return this.userMapper.toResCreateUser(lastUser);
+        }
+        throw new EillegalStateException("Role USER not found");
 
     }
 
-    public ResCreateUser register(CreateAccountDTO user) {
-        User userNew = new User();
-        userNew.setAddress(user.getAddress());
-        userNew.setName(user.getName());
-        userNew.setEmail(user.getEmail());
-        userNew.setPassword(user.getPassword());
-        userNew.setGender(user.getGender());
-        userNew.setPhone(user.getPhone());
-        userNew.setRole(this.roleRepository.findByName("USER"));
-        userNew.setActive(true);
-        User lastUser = this.userRepository.save(userNew);
-        this.cartService.create(lastUser.getId());
-        return ConvertModuleUser.createdTran(lastUser);
+    public ResCreateUser register(CreateAccountDTO user) throws EillegalStateException {
+        var role = this.roleRepository.findByName("USER");
+        if (role != null) {
+            var userNew = this.userMapper.toUser(user);
+            userNew.setRole(role);
+            User lastUser = this.userRepository.save(userNew);
+            this.cartService.create(lastUser.getId());
+            return this.userMapper.toResCreateUser(lastUser);
+        }
+
+        throw new EillegalStateException("Role USER not found");
     }
 
     public List<ResCreateUser> createUsers(List<CreateAccountDTO> users) throws EillegalStateException {
@@ -126,21 +125,20 @@ public class UserService {
                 errorList.add(errorMessage);
             }
             if (errorMessage.isEmpty()) {
-                User user = new User();
-                user.setEmail(x.getEmail());
-                user.setActive(true);
-                user.setAddress(x.getAddress());
-                user.setGender(x.getGender());
-                user.setName(x.getName());
-                user.setPassword(this.passwordEncoder.encode(x.getPassword()));
-                user.setPhone(x.getPhone());
-                user.setRole(this.roleRepository.findByName("USER"));
-                lastUsers.add(user);
+                var role = this.roleRepository.findByName("USER");
+                if (role != null) {
+                    x.setPassword(this.passwordEncoder.encode(x.getPassword()));
+                    var user = this.userMapper.toUser(x);
+                    user.setRole(role);
+                    lastUsers.add(user);
+                }
+                throw new EillegalStateException("Role USER not found");
+
             }
         }
         if (errorList.isEmpty()) {
             this.userRepository.saveAll(lastUsers);
-            return lastUsers.stream().map(ConvertModuleUser::createdTran).collect(Collectors.toList());
+            return lastUsers.stream().map(this.userMapper::toResCreateUser).collect(Collectors.toList());
         }
         throw new EillegalStateException(errorList.stream().collect(Collectors.joining("-", "", "")));
     }
@@ -156,7 +154,7 @@ public class UserService {
         Optional<User> userOptional = this.userRepository.findById(id);
         if (userOptional.isPresent()) {
             User user = userOptional.get();
-            return ConvertModuleUser.fetchUser(user);
+            return this.userMapper.toResFetchUser(user);
         }
         return null;
     }
@@ -182,7 +180,7 @@ public class UserService {
         mt.setTotal(page.getTotalElements());
         res.setMeta(mt);
         List<ResFetchUser> lastList = page.getContent().stream()
-                .map(ConvertModuleUser::fetchUser)
+                .map(this.userMapper::toResFetchUser)
                 .collect(Collectors.toList());
         res.setResult(lastList);
         return res;
@@ -203,16 +201,9 @@ public class UserService {
         }
         User user = this.userRepository.findByEmail(email);
         if (user != null) {
-            ResLoginDTO.UserGetAccount res = new ResLoginDTO.UserGetAccount();
-            ResLoginDTO.UserLogin userLogin = new ResLoginDTO.UserLogin();
-            userLogin.setId(user.getId());
-            userLogin.setEmail(user.getEmail());
-            userLogin.setAddress(user.getAddress());
-            userLogin.setAvatar(user.getAvatar());
-            userLogin.setName(user.getName());
-            userLogin.setPhone(user.getPhone());
-            userLogin.setRole(user.getRole().getName());
-            userLogin.setGender(user.getGender());
+            var res = new ResLoginDTO.UserGetAccount();
+            // ResLoginDTO.UserLogin userLogin = new ResLoginDTO.UserLogin();
+            var userLogin = this.userMapper.toUserLogin(user);
             res.setUser(userLogin);
             return res;
         }
