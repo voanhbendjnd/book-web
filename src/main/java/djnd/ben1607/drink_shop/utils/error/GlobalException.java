@@ -13,6 +13,9 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.dao.DataIntegrityViolationException;
+import jakarta.persistence.EntityNotFoundException;
 
 import djnd.ben1607.drink_shop.domain.response.RestResponse;
 
@@ -54,7 +57,7 @@ public class GlobalException {
         res.setStatusCode(HttpStatus.NOT_FOUND.value());
         res.setError("404 not found");
         res.setMessage(ex.getMessage());
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(res);
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(res); // ✅ FIX: Return NOT_FOUND
     }
 
     // handle error for interception
@@ -99,7 +102,47 @@ public class GlobalException {
         res.setStatusCode(HttpStatus.BAD_REQUEST.value());
         res.setError("Error, exception order...");
         res.setMessage(ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(res); // ✅ FIX: Return BAD_REQUEST
+    }
+
+    // Handle JPA EntityNotFoundException
+    @ExceptionHandler(EntityNotFoundException.class)
+    public ResponseEntity<RestResponse<Object>> handleEntityNotFoundException(EntityNotFoundException ex) {
+        RestResponse<Object> res = new RestResponse<>();
+        res.setStatusCode(HttpStatus.NOT_FOUND.value());
+        res.setError("Resource not found");
+        res.setMessage(ex.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(res);
+    }
+
+    // Handle database constraint violations
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<RestResponse<Object>> handleDataIntegrityViolation(DataIntegrityViolationException ex) {
+        RestResponse<Object> res = new RestResponse<>();
+        res.setStatusCode(HttpStatus.CONFLICT.value());
+        res.setError("Data integrity violation");
+        res.setMessage("The operation violates database constraints. Please check your data.");
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(res);
+    }
+
+    // Handle type mismatch in URL parameters
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<RestResponse<Object>> handleTypeMismatch(MethodArgumentTypeMismatchException ex) {
+        RestResponse<Object> res = new RestResponse<>();
+        res.setStatusCode(HttpStatus.BAD_REQUEST.value());
+        res.setError("Invalid parameter type");
+        res.setMessage("Parameter '" + ex.getName() + "' should be of type " + ex.getRequiredType().getSimpleName());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(res);
+    }
+
+    // Handle IllegalArgumentException
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<RestResponse<Object>> handleIllegalArgument(IllegalArgumentException ex) {
+        RestResponse<Object> res = new RestResponse<>();
+        res.setStatusCode(HttpStatus.BAD_REQUEST.value());
+        res.setError("Invalid argument");
+        res.setMessage(ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(res);
     }
 
 }

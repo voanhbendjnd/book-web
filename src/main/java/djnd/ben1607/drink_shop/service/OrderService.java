@@ -2,6 +2,8 @@ package djnd.ben1607.drink_shop.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
@@ -80,6 +82,67 @@ public class OrderService {
                 orderItems.add(orderItem);
 
             }
+        }
+        caculatedTotalPrice += 10000;
+        if (Math.abs(caculatedTotalPrice - request.totalAmount()) > 0.01) {
+            throw new EillegalStateException("Invalid total amount. Recalculated total is " + caculatedTotalPrice);
+
+        }
+        order.setTotalAmount(caculatedTotalPrice);
+        order.setOrderItems(orderItems);
+        var orderLast = this.orderRepository.save(order);
+        var res = new ResOrder();
+        res.setId(orderLast.getId());
+        res.setStatus(orderLast.getPaymentMethod());
+        res.setTotalAmount(orderLast.getTotalAmount());
+        return res;
+
+    }
+
+    @Transactional
+    public ResOrder orderProductOptimal(RequestOrder request) throws EillegalStateException {
+        User user = this.userRepository.findByEmail(
+                SecurityUtils.getCurrentUserLogin().orElseThrow(() -> new EillegalStateException("User not found")));
+        var orderItems = new ArrayList<OrderItem>();
+        var order = new Order();
+        order.setAddressShipping(request.address());
+        order.setPaymentMethod(request.type());
+        order.setStatus(OrderStatusEnum.PENDING);
+        order.setPhone(request.phone());
+        order.setName(request.name());
+        double caculatedTotalPrice = 0.0;
+        order.setUser(user);
+        var bookIds = request.details().stream().map(RequestOrder.Detail::bookId).collect(Collectors.toList());
+        var books = this.bookRepository.findByIdIn(bookIds);
+        Map<Long, Book> bookMap = books.stream().collect(Collectors.toMap(Book::getId, Function.identity()));
+        for (var x : request.details()) {
+            var book = bookMap.get(x.bookId());
+            int requestQuantity = x.quantity();
+            // >>> check quantity <<<
+            var currentQuantity = book.getStockQuantity() != null ? book.getStockQuantity() : 0;
+            var lastQuantity = currentQuantity - requestQuantity;
+            if (lastQuantity < 0) {
+                throw new EillegalStateException("Quantity maximum is " + currentQuantity);
+            }
+            book.setStockQuantity(lastQuantity);
+            // >>> check sold <<<
+            var sold = book.getSold() != null ? book.getSold() : 0;
+            book.setSold(sold + requestQuantity);
+            // >>> check last price <<<
+            var price = book.getPrice() != null ? book.getPrice() : 0.0;
+            var lastPrice = price * requestQuantity;
+            if (lastPrice != x.price()) {
+                throw new EillegalStateException("Price has changed");
+            }
+            // >>> set order item <<<
+            var orderItem = new OrderItem();
+            orderItem.setBook(book);
+            orderItem.setOrder(order);
+            orderItem.setPrice(x.price());
+            orderItem.setQuantity(requestQuantity);
+            orderItems.add(orderItem);
+            caculatedTotalPrice += x.price() * requestQuantity;
+
         }
         caculatedTotalPrice += 10000;
         if (Math.abs(caculatedTotalPrice - request.totalAmount()) > 0.01) {

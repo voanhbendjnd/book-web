@@ -44,6 +44,7 @@ dependencies {
     testImplementation("org.springframework.security:spring-security-test")
    implementation("org.mapstruct:mapstruct:1.6.2")
 annotationProcessor("org.mapstruct:mapstruct-processor:1.6.2")
+    implementation("com.github.ben-manes.caffeine:caffeine")
 
 }
 

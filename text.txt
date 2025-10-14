@@ -25,3 +25,24 @@ Ví dụ: Khi update user, nếu email trong DTO là null, thì email trong enti
 Mục đích: Kiểm tra null khi có implicit conversion (chuyển đổi ngầm)
 Công dụng: Đảm bảo an toàn khi MapStruct tự động convert giữa các kiểu dữ liệu khác nhau
 Ví dụ: Khi convert từ String sang Integer, sẽ kiểm tra null trước khi convert
+
+
+allEntries = true: Xóa TẤT CẢ entries trong cache region
+@CacheEvict với key sẽ chỉ xóa chính xác cache entry có key đó.
+
+./gradlew bootRun --args="--spring.profiles.active=local"
+
+EntityNotFoundException - JPA entity không tìm thấy
+DataIntegrityViolationException - Vi phạm database constraints
+MethodArgumentTypeMismatchException - Lỗi kiểu dữ liệu URL parameter
+IllegalArgumentException - Tham số không hợp lệ
+
+Authentication		400	Clear message
+Validation	400	Field errors
+Not Found		404	Resource not found
+Permission		403	Forbidden
+File Upload		400	Upload error
+Cart		400	Cart error
+Business Logic		400	Business error
+Database		409	Constraint violation
+Type Mismatch		400	Parameter type erro

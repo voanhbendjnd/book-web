@@ -1,0 +1,12 @@
+spring:
+  mail:
+    username: voanhbendjnd@gmail.com
+    password: qrywyweqefmjrqqc
+  # Database Configuration
+  datasource:
+    username: root
+    password: 1607
+
+djnd:
+  jwt:
+    base64-secret: nE6Od1T/x2GDldpDXhd9uaXfQupvYU7fCgO4IXPG3B2on76ZvM9hmGT7CR4sOPZMVu8R7u4+Uwy9Zik+fOwq9A==

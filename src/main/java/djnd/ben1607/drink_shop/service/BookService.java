@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -42,6 +44,11 @@ public class BookService {
         this.fileService = fileService;
         this.categRepository = categoryRepository;
         this.bookMapper = bookMapper; // 🚀 Initialize BookMapper
+    }
+
+    @Cacheable(value = "books", key = "#id")
+    public Book findById(Long id) {
+        return this.bookRepository.findById(id).orElse(null);
     }
 
     public boolean existsById(Long id) {

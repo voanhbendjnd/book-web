@@ -63,14 +63,14 @@ public class UserService {
         this.userMapper = userMapper;
     }
 
+    @Cacheable(value = "users", key = "#email")
     public User fetchUserByEmail(String email) {
         return this.userRepository.findByEmail(email);
     }
 
+    @Cacheable(value = "users", key = "#email + '_' + #refreshToken")
     public User fetchUserByEmailAndRefreshToken(String email, String refreshToken) {
-        return this.userRepository.findByEmailAndRefreshToken(email, refreshToken) != null
-                ? this.userRepository.findByEmailAndRefreshToken(email, refreshToken)
-                : null;
+        return this.userRepository.findByEmailAndRefreshToken(email, refreshToken);
     }
 
     public void updateUserToken(String token, String email) {
@@ -143,6 +143,7 @@ public class UserService {
         throw new EillegalStateException(errorList.stream().collect(Collectors.joining("-", "", "")));
     }
 
+    @CacheEvict(value = "users", key = "#user.email")
     public ResUpdateUser updateUser(User user) {
         User userDB = this.userRepository.findById(user.getId()).get();
         ChangeUpdate.handle(user, userDB);
